@@ -26,17 +26,16 @@ export async function POST(
   for (const size of sizes) {
     for (const alloy of alloys) {
       variants.push({
-        title: `Union Hex Nut ${size.label} - ${alloy.label}`,
+        title: `Test Nut ${size.label} - ${alloy.label}`,
         sku: `14v-${size.code}-${alloy.label}`,
         // Use array of option values, not object
-        options: [
-          {
-            value: size.label,
-          },
-          {
-            value: alloy.label,
-          },
-        ],
+        options: {
+
+          Size: size.label,
+
+          Alloy: alloy.label,
+
+        },
         prices: [
           {
             amount: size.price + alloy.modifier, // in smallest currency unit (e.g., 200 = $2.00)
