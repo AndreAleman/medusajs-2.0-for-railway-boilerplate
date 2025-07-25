@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@carbon/react": "^1.87.0",
+    "@fontsource/ibm-plex-sans": "^5.2.6",
     "@headlessui/react": "^1.6.1",
     "@hookform/error-message": "^2.0.0",
     "@medusajs/js-sdk": "preview",
