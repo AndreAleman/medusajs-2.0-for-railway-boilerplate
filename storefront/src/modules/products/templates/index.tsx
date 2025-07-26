@@ -28,20 +28,35 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
 
   return (
     <>
+    <div
+      className="content-container flex flex-col small:flex-row small:items-start py-6 relative"
+      data-testid="product-container"
+      id="pdp-root-container"
+    >
+      {/* Image Gallery Section (Left Side) */}
       <div
-        className="content-container flex flex-col small:flex-row small:items-start py-6 relative"
-        data-testid="product-container"
+        className="block w-full small:w-2/3 relative py-8"
+        id="pdp-image-section"
       >
-       
-        <div className="block w-full relative">
-          <ImageGallery images={product?.images || []} />
-        </div>
-        <div className="flex flex-col small:sticky small:top-48 small:py-0 small:max-w-[300px] w-full py-8 gap-y-12">
-          <ProductOnboardingCta />
-        <div className="flex flex-col small:sticky small:top-48 small:py-0 small:max-w-[300px] w-full py-8 gap-y-6">
+        <ImageGallery images={product?.images || []} />
+      </div>
+
+      {/* Vertical Separator (Desktop Only) */}
+      <div
+        className="hidden small:block w-px bg-gray-600 mx-6 h-full"
+        id="pdp-vertical-divider"
+      />
+
+      {/* Product Info Section (Right Side) */}
+      <div
+        className="flex flex-col small:sticky small:top-48 small:py-0 small:w-1/3 w-full"
+        id="pdp-info-section"
+      >
+        <ProductOnboardingCta />
+
+        {/* Info + Actions */}
+        <div className="flex flex-col py-8 gap-y-6" id="pdp-details-section">
           <ProductInfo product={product} />
-          <ProductTabs product={product} />
-        </div>
           <Suspense
             fallback={
               <ProductActions
@@ -54,17 +69,18 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
             <ProductActionsWrapper id={product.id} region={region} />
           </Suspense>
         </div>
+
+        {/* Tabs below actions, with y-gap-2 to actions */}
+        <div className="mt-2"> {/* gap-y-2 created by margin-top on this container */}
+          <ProductTabs product={product} />
+        </div>
       </div>
-      <div
-        className="content-container my-16 small:my-32"
-        data-testid="related-products-container"
-      >
-        <Suspense fallback={<SkeletonRelatedProducts />}>
-          <RelatedProducts product={product} countryCode={countryCode} />
-        </Suspense>
-      </div>
+
+    </div>
+
     </>
   )
+
 }
 
 export default ProductTemplate
