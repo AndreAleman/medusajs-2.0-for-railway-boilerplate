@@ -54,10 +54,13 @@ const medusaConfig = {
       resolve: "./src/modules/sanity",
       options: {
         api_token: process.env.SANITY_API_TOKEN,
-        project_id: process.env.SANITY_PROJECT_ID || "kgdlucjs",
-        api_version: "2023-05-03",
+        project_id: process.env.SANITY_PROJECT_ID,
+        api_version: new Date().toISOString().split("T")[0],
         dataset: process.env.SANITY_DATASET || "production",
         studio_url: process.env.SANITY_STUDIO_URL || "http://localhost:3333",
+        type_map: {
+          product: "product",
+        },
       },
     },
     {
