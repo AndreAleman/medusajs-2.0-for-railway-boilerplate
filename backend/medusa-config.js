@@ -51,6 +51,16 @@ const medusaConfig = {
   },
   modules: [
     {
+      resolve: "./src/modules/sanity",
+      options: {
+        api_token: process.env.SANITY_API_TOKEN,
+        project_id: process.env.SANITY_PROJECT_ID || "kgdlucjs",
+        api_version: "2023-05-03",
+        dataset: process.env.SANITY_DATASET || "production",
+        studio_url: process.env.SANITY_STUDIO_URL || "http://localhost:3333",
+      },
+    },
+    {
       key: Modules.FILE,
       resolve: '@medusajs/file',
       options: {

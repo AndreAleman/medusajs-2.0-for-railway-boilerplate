@@ -28,30 +28,20 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
 
   return (
     <>
-    <div
-      className="content-container flex flex-col small:flex-row small:items-start py-6 relative"
-      data-testid="product-container"
-      id="pdp-root-container"
-    >
-      {/* Image Gallery Section (Left Side) */}
-      <div
-        className="block w-full small:w-2/3 relative py-8"
-        id="pdp-image-section"
-      >
-        <ImageGallery images={product?.images || []} />
-      </div>
+<div className="content-container flex flex-col small:flex-row small:items-start py-6 relative" id="pdp-root-container">
+  {/* ...left image column... */}
+  <div className="block w-full small:w-2/3 relative py-8" id="pdp-image-section">
+    <ImageGallery images={product?.images || []} />
+  </div>
 
-      {/* Vertical Separator (Desktop Only) */}
-      <div
-        className="hidden small:block w-px bg-gray-600 mx-6 h-full"
-        id="pdp-vertical-divider"
-      />
+  {/* Divider: Make sure this is not a child of the left or right column! */}
+  <div
+    className="hidden small:block w-px bg-gray-200 mx-6 self-stretch"
+    id="pdp-vertical-divider"
+  />
 
-      {/* Product Info Section (Right Side) */}
-      <div
-        className="flex flex-col small:sticky small:top-48 small:py-0 small:w-1/3 w-full"
-        id="pdp-info-section"
-      >
+  {/* ...right info column... */}
+  <div className="flex flex-col small:sticky small:top-48 small:py-0 small:w-1/3 w-full" id="pdp-info-section">
         <ProductOnboardingCta />
 
         {/* Info + Actions */}
