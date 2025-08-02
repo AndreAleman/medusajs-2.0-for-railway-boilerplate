@@ -15,17 +15,21 @@ type ProductTemplateProps = {
   product: HttpTypes.StoreProduct
   region: HttpTypes.StoreRegion
   countryCode: string
+   sanity?: {
+    content: string
+  }
 }
 
 const ProductTemplate: React.FC<ProductTemplateProps> = ({
   product,
   region,
   countryCode,
+  sanity,
 }) => {
   if (!product || !product.id) {
     return notFound()
   }
-
+  console.log('inside the template index.tsx')
   return (
     <>
 <div className="content-container flex flex-col small:flex-row small:items-start py-6 relative" id="pdp-root-container">
@@ -46,7 +50,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
 
         {/* Info + Actions */}
         <div className="flex flex-col py-8 gap-y-6" id="pdp-details-section">
-          <ProductInfo product={product} />
+          <ProductInfo product={product} sanity={sanity} />
           <Suspense
             fallback={
               <ProductActions

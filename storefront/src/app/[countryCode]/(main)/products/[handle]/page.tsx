@@ -4,6 +4,8 @@ import { notFound } from "next/navigation"
 import ProductTemplate from "@modules/products/templates"
 import { getRegion, listRegions } from "@lib/data/regions"
 import { getProductByHandle, getProductsList } from "@lib/data/products"
+import { client } from "../../../../../sanity/lib/client"
+
 
 type Props = {
   params: { countryCode: string; handle: string }
@@ -79,11 +81,23 @@ export default async function ProductPage({ params }: Props) {
     notFound()
   }
 
+    // ...inside ProductPage
+  const sanityProduct = await client.getDocument(pricedProduct.id);
+
+  // For null safety, you might want to handle 404s or fallback:
+  const sanity = (await client.getDocument(pricedProduct.id))?.specs[0]
+  
+  console.log(sanityProduct)
+
+
+
   return (
+    
     <ProductTemplate
       product={pricedProduct}
       region={region}
       countryCode={params.countryCode}
+      sanity={{content: sanityProduct?.content }}
     />
-  )
+  );
 }
