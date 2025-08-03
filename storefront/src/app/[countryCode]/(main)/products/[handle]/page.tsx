@@ -81,23 +81,21 @@ export default async function ProductPage({ params }: Props) {
     notFound()
   }
 
-    // ...inside ProductPage
-  const sanityProduct = await client.getDocument(pricedProduct.id);
 
   // For null safety, you might want to handle 404s or fallback:
   const sanity = (await client.getDocument(pricedProduct.id))?.specs[0]
   
-  console.log(sanityProduct)
+  //console.log(sanityProduct)
 
 
-
+  
   return (
     
     <ProductTemplate
       product={pricedProduct}
       region={region}
       countryCode={params.countryCode}
-      sanity={{content: sanityProduct?.content }}
+      sanity={{content: sanity?.content }}
     />
   );
 }

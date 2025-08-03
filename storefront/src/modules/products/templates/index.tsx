@@ -29,7 +29,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   if (!product || !product.id) {
     return notFound()
   }
-  console.log('inside the template index.tsx')
+  console.log('in the /module/product', sanity)
   return (
     <>
 <div className="content-container flex flex-col small:flex-row small:items-start py-6 relative" id="pdp-root-container">
