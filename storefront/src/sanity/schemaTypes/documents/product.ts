@@ -1,11 +1,20 @@
 import { ComposeIcon } from "@sanity/icons"
 import { DocumentDefinition } from "sanity"
+import { productTab } from './productTab'
+
 
 const productSchema: DocumentDefinition = {
   fields: [
     {
       name: "title",
       type: "string",
+    },
+    {
+      name: "tabs", // 2. Add the tabs field!
+      type: "array",
+      title: "Product Information Tabs",
+      of: [{ type: "productTab" }],
+      group: "content",
     },
     {
       group: "content",
