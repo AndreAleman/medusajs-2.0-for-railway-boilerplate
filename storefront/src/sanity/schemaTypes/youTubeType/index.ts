@@ -1,9 +1,12 @@
-import { defineType, defineField } from 'sanity'
-import { PlayIcon } from '@sanity/icons'
-import { YouTubePreview } from './YouTubePreview'
+// ./youTubeType/index.ts or ./youTubeType.ts
 
-export const youTubeType = defineType({
-  name: 'youTube',                     // NOTE: use this exact name elsewhere!
+// ./schemaTypes/youTubeType/index.ts
+
+import {defineType, defineField} from 'sanity'
+import {PlayIcon} from '@sanity/icons'
+
+export const youtube = defineType({
+  name: 'youtube',
   type: 'object',
   title: 'YouTube Embed',
   icon: PlayIcon,
@@ -13,11 +16,5 @@ export const youTubeType = defineType({
       type: 'url',
       title: 'YouTube video URL',
     }),
-  ],
-  preview: {
-    select: { url: 'url' },
-  },
-  components: {
-    preview: YouTubePreview,            // Shows a live preview in Studio
-  },
+  ]
 })

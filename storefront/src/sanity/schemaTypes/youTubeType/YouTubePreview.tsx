@@ -1,18 +1,17 @@
-// youtubePreview.tsx
-import type { PreviewProps } from 'sanity';
-import { Flex, Text } from '@sanity/ui';
-import ReactPlayer from 'react-player'; // Use the main ReactPlayer import
+// ./src/schemas/schemaTypes/youTubeType/YouTubePreview.tsx
+
+import type {PreviewProps} from 'sanity'
+import {Flex, Text} from '@sanity/ui'
+import YouTubePlayer from 'react-player'
 
 export function YouTubePreview(props: PreviewProps) {
-  const { title: url } = props;
+  const {title: url} = props
 
   return (
     <Flex padding={3} align="center" justify="center">
-      {typeof url === 'string' && url.includes('youtube.com') ? ( // Check if it's a YouTube URL
-        <ReactPlayer src={url} />
-      ) : (
-        <Text>Add a valid YouTube URL</Text>
-      )}
+      {typeof url === 'string' 
+        ? <YouTubePlayer src={url} /> 
+        : <Text>Add a YouTube URL</Text>}
     </Flex>
-  );
+  )
 }
