@@ -12,7 +12,8 @@ export const productTab = defineType({
       defineField({ name: 'content', type: 'array', of: [
         { type: 'block' },
         { type: 'youtube' }, // allow YouTube embeds inside tab content
-        // add other custom types here
+        { type: 'table' },    // <-- Add this for tables
+       { type: 'image' },    // <-- You might want images too
       ]}),
     ]
 })
