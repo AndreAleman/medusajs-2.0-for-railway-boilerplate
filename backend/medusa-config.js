@@ -48,6 +48,14 @@ const medusaConfig = {
   admin: {
     backendUrl: BACKEND_URL,
     disable: SHOULD_DISABLE_ADMIN,
+    vite: () => {
+      return {
+        server: {
+          allowedHosts: ["6d022dc49e0d.ngrok-free.app"], // replace ".medusa-server-testing.com" with ".yourdomain.com"
+        },
+      };
+        
+    },
   },
   modules: [
     {
@@ -132,16 +140,15 @@ const medusaConfig = {
     }] : []),
     ...(STRIPE_API_KEY && STRIPE_WEBHOOK_SECRET ? [{
       key: Modules.PAYMENT,
-      resolve: '@medusajs/payment',
+      resolve: "@medusajs/medusa/payment",
       options: {
         providers: [
           {
-            resolve: '@medusajs/payment-stripe',
-            id: 'stripe',
+            resolve: "@medusajs/medusa/payment-stripe",
+            id: "stripe",
             options: {
-              apiKey: STRIPE_API_KEY,
-              webhookSecret: STRIPE_WEBHOOK_SECRET,
-            },
+              apiKey: process.env.STRIPE_API_KEY,
+            }
           },
         ],
       },
