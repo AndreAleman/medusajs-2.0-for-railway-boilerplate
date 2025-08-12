@@ -2,7 +2,7 @@ import {
   MedusaRequest, 
   MedusaResponse,
 } from "@medusajs/framework/http"
-import SanityModuleService from "src/modules/sanity/service"
+import SanityModuleService from "../../../../../modules/sanity/service"
 import { SANITY_MODULE } from "../../../../../modules/sanity"
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {

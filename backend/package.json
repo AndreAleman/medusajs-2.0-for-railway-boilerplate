@@ -18,7 +18,9 @@
     "ib": "init-backend",
     "start": "init-backend && cd .medusa/server && medusa start --verbose",
     "dev": "medusa develop",
-    "email:dev": "email dev --dir=./src/modules/email-notifications/templates --port=3002"
+    "email:dev": "email dev --dir=./src/modules/email-notifications/templates --port=3002",
+    "import:list": "tsx src/scripts/import-products-list.ts",
+    "import:all": "tsx src/scripts/import-products-all.ts"
   },
   "dependencies": {
     "@medusajs/admin-sdk": "2.8.8",
@@ -42,8 +44,10 @@
     "@react-email/components": "^0.0.26",
     "@rokmohar/medusa-plugin-meilisearch": "1.2.3",
     "@sanity/client": "^7.8.1",
+    "@woocommerce/woocommerce-rest-api": "^1.0.2",
     "awilix": "^8.0.1",
     "axios": "^1.11.0",
+    "dotenv": "^17.2.1",
     "medusajs-launch-utils": "^0.0.16",
     "minio": "^8.0.3",
     "pg": "^8.13.1",
@@ -69,6 +73,7 @@
     "react-dom": "^18.3.1",
     "react-email": "^3.0.4",
     "ts-node": "^10.9.2",
+    "tsx": "^4.20.3",
     "typescript": "^5.7.2",
     "vite": "^5.4.11"
   },
