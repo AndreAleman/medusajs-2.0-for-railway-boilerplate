@@ -23,10 +23,10 @@ export class InventoryUpdater {
   }
 
   /**
-   * Authenticate with Medusa admin
+   * AUTHENTICATION: Get JWT token from Medusa admin
    */
   async authenticate(): Promise<void> {
-    if (this.authToken) return // Already authenticated
+    if (this.authToken) return
 
     try {
       console.log('🔐 Authenticating with Medusa admin...')
@@ -46,36 +46,15 @@ export class InventoryUpdater {
   }
 
   /**
-   * Publish a draft product to make it visible on the storefront
-   */
-  async publishProduct(productId: string): Promise<void> {
-    try {
-      console.log(`   📢 Publishing product: ${productId}`)
-      
-      await this.apiClient.post(`/admin/products/${productId}`, {
-        status: 'published'
-      })
-      
-      console.log('   ✅ Product published successfully')
-    } catch (error: any) {
-      console.error('   ❌ Failed to publish product:', error.response?.data || error.message)
-      throw error
-    }
-  }
-
-  /**
-   * Assign product to sales channel
+   * STEP 1: ASSIGN PRODUCT TO SALES CHANNEL
+   * Uses correct Medusa v2 API: POST /admin/sales-channels/{id}/products with "add" array
    */
   async assignProductToSalesChannel(productId: string, salesChannelId: string): Promise<void> {
     try {
-      console.log(`   🏪 Assigning product ${productId} to sales channel ${salesChannelId}`)
+      console.log(`   🏪 STEP 1: Assigning product ${productId} to sales channel`)
       
       await this.apiClient.post(`/admin/sales-channels/${salesChannelId}/products`, {
-        product_ids: [
-          {
-            id: productId
-          }
-        ]
+        add: [productId]  // Medusa v2 expects "add" array with product IDs
       })
       
       console.log('   ✅ Product assigned to sales channel successfully')
@@ -86,48 +65,89 @@ export class InventoryUpdater {
   }
 
   /**
-   * Create inventory items for variants that don't have them
+   * HELPER: Find existing inventory item by SKU instead of creating new one
+   * This prevents "already exists" errors mentioned in Medusa AI guidance
    */
-  async createMissingInventoryItems(variants: any[]): Promise<void> {
-    console.log('   🔧 Creating missing inventory items...')
-    
-    for (const variant of variants) {
-      if (!variant.inventory_item?.id && variant.manage_inventory) {
-        try {
-          console.log(`     🏗️  Creating inventory item for ${variant.sku}...`)
-          
-          // Create inventory item
-          const inventoryResponse = await this.apiClient.post('/admin/inventory-items', {
-            sku: variant.sku,
-            title: variant.title || variant.sku
-          })
-          
-          const inventoryItemId = inventoryResponse.data.inventory_item.id
-          console.log(`     ✅ Created inventory item: ${inventoryItemId}`)
-          
-          // Link inventory item to variant
-          await this.apiClient.post(`/admin/product-variants/${variant.id}/inventory-items`, {
-            inventory_item_id: inventoryItemId
-          })
-          
-          console.log(`     🔗 Linked to variant ${variant.sku}`)
-          
-          // Update the variant object so we can use it immediately
-          variant.inventory_item = { id: inventoryItemId }
-          
-        } catch (error: any) {
-          console.error(`     ❌ Failed to create inventory item for ${variant.sku}:`, error.response?.data || error.message)
-        }
-      } else if (variant.inventory_item?.id) {
-        console.log(`     ✅ ${variant.sku}: Inventory item exists (${variant.inventory_item.id})`)
-      } else {
-        console.log(`     ⚠️  ${variant.sku}: manage_inventory is false`)
-      }
+  async findInventoryItemBySku(sku: string): Promise<any> {
+    try {
+      const response = await this.apiClient.get('/admin/inventory-items', {
+        params: { sku: sku }
+      })
+      
+      const inventoryItems = response.data.inventory_items || []
+      return inventoryItems.find((item: any) => item.sku === sku) || null
+    } catch (error: any) {
+      console.error(`   ⚠️  Failed to find inventory item for SKU ${sku}:`, error.message)
+      return null
     }
   }
 
   /**
-   * Update inventory for a product by its handle
+   * STEP 2: LINK EXISTING INVENTORY ITEM TO VARIANT
+   * Links the found inventory item to the product variant
+   */
+/**
+ * STEP 2: LINK EXISTING INVENTORY ITEM TO VARIANT - FIXED for Medusa v2 API
+ * Uses correct Medusa v2 API endpoint: /admin/products/{product_id}/variants/{variant_id}/inventory-items
+ */
+    async linkInventoryItemToVariant(productId: string, variantId: string, inventoryItemId: string): Promise<void> {
+    try {
+        console.log(`     🔗 STEP 2: Linking inventory item to variant ${variantId}`)
+        
+        // ✅ FIXED: Use correct Medusa v2 API endpoint structure
+        await this.apiClient.post(`/admin/products/${productId}/variants/${variantId}/inventory-items`, {
+        inventory_item_id: inventoryItemId,
+        required_quantity: 1  // Required field in Medusa v2
+        })
+        
+        console.log('     ✅ Inventory item linked to variant successfully')
+    } catch (error: any) {
+        console.error('     ❌ Failed to link inventory item to variant:', error.response?.data || error.message)
+        throw error
+    }
+    }
+
+
+  /**
+   * STEP 3: ASSIGN INVENTORY TO LOCATION & SET LEVELS
+   * Creates or updates inventory level at the specified location with the given quantity
+   */
+  async setInventoryLevelAtLocation(inventoryItemId: string, locationId: string, quantity: number): Promise<void> {
+    try {
+      console.log(`     📍 STEP 3: Setting inventory level (${quantity} units) at location`)
+      
+      // First check if inventory level already exists at this location
+      const levelsResponse = await this.apiClient.get(`/admin/inventory-items/${inventoryItemId}/location-levels`)
+      const existingLevels = levelsResponse.data.inventory_levels || []
+      const existingLevel = existingLevels.find((level: any) => level.location_id === locationId)
+
+      if (existingLevel) {
+        // Update existing inventory level
+        await this.apiClient.post(`/admin/inventory-items/${inventoryItemId}/location-levels/${existingLevel.id}`, {
+          stocked_quantity: quantity
+        })
+        console.log('     ✅ Updated existing inventory level')
+      } else {
+        // Create new inventory level at location
+        await this.apiClient.post(`/admin/inventory-items/${inventoryItemId}/location-levels`, {
+          location_id: locationId,
+          stocked_quantity: quantity
+        })
+        console.log('     ✅ Created new inventory level at location')
+      }
+    } catch (error: any) {
+      console.error('     ❌ Failed to set inventory level:', error.response?.data || error.message)
+      throw error
+    }
+  }
+
+
+
+    
+
+  /*
+   * MAIN PROCESS: Update inventory for a single product
+   * Orchestrates all three steps: sales channel + inventory location + inventory levels
    */
   async updateProductInventory(productHandle: string, wooCommerceVariants: any[]): Promise<InventoryUpdateResult> {
     console.log(`📦 Updating inventory for product: ${productHandle}`)
@@ -139,101 +159,76 @@ export class InventoryUpdater {
     try {
       await this.authenticate()
 
-      // Step 1: Get the Medusa product and its variants
+      // Get the Medusa product and its variants
       const medusaProduct = await this.getMedusaProduct(productHandle)
       if (!medusaProduct) {
         throw new Error(`Product not found: ${productHandle}`)
       }
+      console.log('PARENT PRODUCT JSON:', JSON.stringify(medusaProduct, null, 2))
 
       console.log(`   📋 Found product: ${medusaProduct.title} with ${medusaProduct.variants.length} variants`)
 
-      // ✅ DEBUG: Show SKUs from both sources
-      console.log('\n🔍 DEBUG: WooCommerce variants SKUs:')
-      wooCommerceVariants.forEach((wv, i) => {
-        console.log(`   ${i + 1}. WooCommerce SKU: "${wv.sku}" (stock: ${wv.stock_quantity || wv.inventory_quantity || 0})`)
-      })
-
-      console.log('\n🔍 DEBUG: Medusa variants SKUs:')
-      medusaProduct.variants.forEach((mv, i) => {
-        console.log(`   ${i + 1}. Medusa SKU: "${mv.sku}" (manage_inventory: ${mv.manage_inventory})`)
-      })
-
-      console.log('\n🔍 DEBUG: SKU matching results:')
-      medusaProduct.variants.forEach((mv) => {
-        const wooVariant = wooCommerceVariants.find(wv => wv.sku === mv.sku)
-        if (wooVariant) {
-          console.log(`   ✅ MATCH: "${mv.sku}" found in both systems`)
-        } else {
-          console.log(`   ❌ NO MATCH: Medusa SKU "${mv.sku}" not found in WooCommerce data`)
-        }
-      })
-
-      console.log('\n🔍 DEBUG: Full Medusa product structure:')
-      console.log(`   • Product ID: ${medusaProduct.id}`)
-      console.log(`   • Product title: "${medusaProduct.title}"`)
-      console.log(`   • Product handle: "${medusaProduct.handle}"`)
-      console.log(`   • Product status: ${medusaProduct.status}`)
-      console.log(`   • Product type: ${medusaProduct.type || 'Not set'}`)
-      console.log(`   • Sales channels: ${medusaProduct.sales_channels?.length || 0}`)
-      console.log(`   • Options: ${medusaProduct.options?.length || 0}`)
-      console.log(`   • Variants: ${medusaProduct.variants?.length || 0}`)
-
-      // Check if this is actually a parent product with proper structure
-      if (medusaProduct.options && medusaProduct.options.length > 0) {
-        console.log('   ✅ This appears to be a parent product with options')
-        medusaProduct.options.forEach((option: any, i: number) => {
-          console.log(`     ${i + 1}. Option: ${option.title} - Values: [${option.values?.join(', ')}]`)
-        })
-      } else {
-        console.log('   ❌ WARNING: No options found - this might not be a proper parent product')
-      }
-
-      // Step 2: Publish product if it's draft
-      if (medusaProduct.status === 'draft') {
-        console.log('\n   📢 Product is in draft status, publishing...')
-        await this.publishProduct(medusaProduct.id)
-      }
-
-      // Step 3: ✅ NEW - Assign to sales channel if environment variable is provided
+      // STEP 1: Assign product to sales channel (if environment variable provided)
       if (process.env.MEDUSA_SALES_CHANNEL_ID) {
-        console.log('\n   🏪 Assigning product to sales channel...')
-        await this.assignProductToSalesChannel(
-          medusaProduct.id, 
-          process.env.MEDUSA_SALES_CHANNEL_ID
-        )
+        await this.assignProductToSalesChannel(medusaProduct.id, process.env.MEDUSA_SALES_CHANNEL_ID)
       } else {
-        console.log('\n   ⚠️  MEDUSA_SALES_CHANNEL_ID not set - skipping sales channel assignment')
+        console.log('   ⚠️  MEDUSA_SALES_CHANNEL_ID not set - skipping sales channel assignment')
       }
 
-      // Step 4: Create missing inventory items
-      console.log('\n')
-      await this.createMissingInventoryItems(medusaProduct.variants)
-
-      // Step 5: Update inventory levels
-      console.log('\n   📊 Updating inventory levels:')
+      // Process each variant for STEPS 2 & 3
+      console.log('\n   🔧 Processing variants for inventory setup...')
       for (const medusaVariant of medusaProduct.variants) {
         try {
-          // Find matching WooCommerce variant by SKU
+          console.log(`\n   📦 Processing variant: ${medusaVariant.sku}`)
+          
+          // Find matching WooCommerce variant for quantity data
           const wooVariant = wooCommerceVariants.find(wv => wv.sku === medusaVariant.sku)
+          const newQuantity = wooVariant ? (wooVariant.stock_quantity || wooVariant.inventory_quantity || 0) : 0
           
-          if (!wooVariant) {
-            console.log(`     ⚠️  No WooCommerce data found for SKU: ${medusaVariant.sku}`)
-            continue
-          }
-
-          const newQuantity = wooVariant.stock_quantity || wooVariant.inventory_quantity || 0
-          
-          // Update inventory level if variant has inventory item
-          if (medusaVariant.inventory_item?.id && newQuantity >= 0) {
-            await this.updateVariantInventory(medusaVariant, newQuantity)
-            variantsUpdated++
-            console.log(`     ✅ ${medusaVariant.sku}: ${newQuantity} units`)
+          // Check if variant already has inventory item linked
+          if (medusaVariant.inventory_item?.id) {
+            console.log('     ✅ Variant already has inventory item linked')
+            
+            // Skip to STEP 3: Set inventory level
+            if (process.env.MEDUSA_LOCATION_ID) {
+              await this.setInventoryLevelAtLocation(
+                medusaVariant.inventory_item.id, 
+                process.env.MEDUSA_LOCATION_ID, 
+                newQuantity
+              )
+              variantsUpdated++
+            }
           } else {
-            console.log(`     ⚠️  ${medusaVariant.sku}: No inventory item or invalid quantity`)
+            // Find existing inventory item by SKU (Medusa AI guidance)
+            const existingInventoryItem = await this.findInventoryItemBySku(medusaVariant.sku)
+            
+            if (existingInventoryItem) {
+              console.log('     ✅ Found existing inventory item by SKU')
+              
+              // STEP 2: Link existing inventory item to variant
+              // STEP 2: Link existing inventory item to variant
+                await this.linkInventoryItemToVariant(
+                medusaProduct.id,     // ✅ Add product ID (required for correct endpoint)
+                medusaVariant.id, 
+                existingInventoryItem.id
+                )
+              
+              // STEP 3: Set inventory level at location
+              if (process.env.MEDUSA_LOCATION_ID) {
+                await this.setInventoryLevelAtLocation(
+                  existingInventoryItem.id, 
+                  process.env.MEDUSA_LOCATION_ID, 
+                  newQuantity
+                )
+                variantsUpdated++
+              }
+            } else {
+              console.log('     ⚠️  No existing inventory item found for SKU - skipping variant')
+            }
           }
 
         } catch (error: any) {
-          const errorMsg = `Failed to update inventory for ${medusaVariant.sku}: ${error.message}`
+          const errorMsg = `Failed to process variant ${medusaVariant.sku}: ${error.message}`
           console.error(`     ❌ ${errorMsg}`)
           errors.push(errorMsg)
         }
@@ -269,7 +264,7 @@ export class InventoryUpdater {
   }
 
   /**
-   * Get Medusa product by handle
+   * HELPER: Get Medusa product by handle
    */
   private async getMedusaProduct(handle: string): Promise<any> {
     try {
@@ -280,35 +275,6 @@ export class InventoryUpdater {
       return response.data.products?.[0] || null
     } catch (error: any) {
       throw new Error(`Failed to fetch product ${handle}: ${error.message}`)
-    }
-  }
-
-  /**
-   * Update inventory for a specific variant
-   */
-  private async updateVariantInventory(variant: any, quantity: number): Promise<void> {
-    try {
-      // First, get current inventory levels to see if we need to create or update
-      const levelsResponse = await this.apiClient.get(`/admin/inventory-items/${variant.inventory_item.id}/location-levels`)
-      const existingLevels = levelsResponse.data.inventory_levels || []
-      
-      const locationId = process.env.MEDUSA_LOCATION_ID
-      const existingLevel = existingLevels.find((level: any) => level.location_id === locationId)
-
-      if (existingLevel) {
-        // Update existing level
-        await this.apiClient.post(`/admin/inventory-items/${variant.inventory_item.id}/location-levels/${existingLevel.id}`, {
-          stocked_quantity: quantity
-        })
-      } else {
-        // Create new level
-        await this.apiClient.post(`/admin/inventory-items/${variant.inventory_item.id}/location-levels`, {
-          location_id: locationId,
-          stocked_quantity: quantity
-        })
-      }
-    } catch (error: any) {
-      throw new Error(`Failed to update inventory level: ${error.response?.data?.message || error.message}`)
     }
   }
 }
@@ -338,7 +304,6 @@ async function main() {
       console.log(`📡 Fetched ${wooCommerceVariants.length} variants from WooCommerce`)
     } else {
       console.log('⚠️  No WooCommerce parent ID provided - using manual inventory data')
-      // You could add manual inventory data here or prompt for it
     }
     
     const result = await updater.updateProductInventory(productHandle, wooCommerceVariants)

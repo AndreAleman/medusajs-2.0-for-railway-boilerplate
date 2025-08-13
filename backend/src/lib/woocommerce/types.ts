@@ -85,16 +85,15 @@ export interface MedusaProductInput {
   variants: {
     title: string
     sku: string
-    options: Record<string, string>  // ✅ Object format for Medusa v2 API
+    options: Record<string, string>
     prices: { amount: number, currency_code: string }[]
     manage_inventory: boolean
-    // ✅ REMOVED: inventory_quantity (handled separately)
   }[]
   images?: { url: string }[]
+  thumbnail?: string
   description?: string
-
+  metadata?: Record<string, any>
 }
-
 
 export interface MedusaProductOption {
   id: string
