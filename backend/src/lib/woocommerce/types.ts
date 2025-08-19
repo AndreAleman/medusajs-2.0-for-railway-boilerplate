@@ -80,6 +80,7 @@ export interface ApiCredentials {
 export interface MedusaProductInput {
   title: string
   handle: string
+  status: 'published',    
   sales_channels: { id: string }[]
   options: { title: string, values: string[] }[]
   variants: {

@@ -87,6 +87,7 @@ class WooToMedusaMigration {
         title: wooProduct.name,
         handle: wooProduct.slug,
         description: wooProduct.description,
+        status: 'published',       
         thumbnail: wooProduct.images?.[0]?.src,
         images: (wooProduct.images || []).map((img: any) => ({ url: img.src })),
         options,
@@ -138,6 +139,54 @@ class WooToMedusaMigration {
       throw error
     }
   }
+
+/**
+ * Make sure every variant has (a) an inventory_item and
+ * (b) that item is linked to the variant.
+ *
+ * Called once right after the product is created OR
+ * when you discover the product already exists.
+ */
+async ensureInventoryItems(productId: string): Promise<void> {
+  await this.authenticateWithMedusa()
+
+  /* 1. Get the variants with their inventory links */
+  const { data } = await this.medusaClient.get(`/admin/products/${productId}`, {
+    params: { fields: '*variants,*variants.inventory_items' }
+  })
+  const variants = data.product.variants
+
+  /* 2. Prepare batch payloads */
+  const createLinks: any[] = []
+
+  for (const v of variants) {
+    if (v.inventory_items?.length) continue        // already linked
+
+    /* 2.a Create a bare inventory item (one per variant) */
+    const item = await this.medusaClient.post("/admin/inventory-items", {
+      sku: v.sku,
+      title: v.title
+    })
+
+    /* 2.b Record the link we need to create */
+    createLinks.push({
+      inventory_item_id: item.data.inventory_item.id,
+      variant_id: v.id,
+      required_quantity: 1                       // “1 unit of this item per variant”
+    })
+  }
+
+  /* 3. Link new items in one call */
+  if (createLinks.length) {
+    console.log(`🔗 Linking ${createLinks.length} new inventory items …`)
+    await this.medusaClient.post(
+      `/admin/products/${productId}/variants/inventory-items/batch`,
+      { create: createLinks }
+    )
+  }
+
+  console.log('✅ All variants now have inventory items')
+}
 
 
 
@@ -275,29 +324,30 @@ async completeInventorySetup(productId: string, wooCommerceVariants: any[]): Pro
 /**
  * Helper: Set inventory level at location
  */
-async setInventoryLevel(inventoryItemId: string, locationId: string, quantity: number): Promise<void> {
-  try {
-    // Check existing levels
-    const levelsResponse = await this.medusaClient.get(`/admin/inventory-items/${inventoryItemId}/location-levels`)
-    const existingLevels = levelsResponse.data.inventory_levels || []
-    const existingLevel = existingLevels.find((level: any) => level.location_id === locationId)
 
-    if (existingLevel) {
-      // Update existing level
-      await this.medusaClient.post(`/admin/inventory-items/${inventoryItemId}/location-levels/${existingLevel.id}`, {
-        stocked_quantity: quantity
-      })
+/** Create or update the location-level for one inventory item */
+async setInventoryLevel(itemId: string, locationId: string, qty: number) {
+  try {
+    // try update first
+    await this.medusaClient.post(
+      `/admin/inventory-items/${itemId}/location-levels`,
+      { location_id: locationId, stocked_quantity: qty }
+    )
+  } catch (err: any) {
+    if (err.response?.status === 404 ||
+        err.response?.data?.code === 'item_not_stocked_at_location') {
+      // create level, then retry
+      await this.medusaClient.post(
+        `/admin/inventory-items/${itemId}/location-levels`,
+        { location_id: locationId, stocked_quantity: qty }
+      )
     } else {
-      // Create new level at location
-      await this.medusaClient.post(`/admin/inventory-items/${inventoryItemId}/location-levels`, {
-        location_id: locationId,
-        stocked_quantity: quantity
-      })
+      throw err
     }
-  } catch (error: any) {
-    throw new Error(`Inventory level update failed: ${error.response?.data?.message || error.message}`)
   }
 }
+
+
 
 
 
@@ -364,6 +414,27 @@ async testCompleteMigration(productId: number): Promise<void> {
       const createdProduct = await this.createProductInMedusa(medusaProduct)
       productToUpdate = createdProduct.id
     }
+
+    await this.ensureInventoryItems(productToUpdate)
+
+    if (existingProductId) {
+      // fetch current status
+      const { data } = await this.medusaClient.get(`/admin/products/${existingProductId}`)
+      if (data.product.status !== 'published') {
+        console.log('🔄 Product exists but is draft – publishing it now')
+        await this.medusaClient.post(
+          `/admin/products/${existingProductId}`,
+          { status: 'published' }
+        )
+      }
+    }
+
+
+
+
+
+
+
 
     // Step 3: Always update inventory (whether new or existing)
     console.log(`📦 Updating inventory for product: ${productToUpdate}`)
