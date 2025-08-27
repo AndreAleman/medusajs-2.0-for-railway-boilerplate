@@ -5,6 +5,7 @@ import { getCategoryByHandle, listCategories } from "@lib/data/categories"
 import { listRegions } from "@lib/data/regions"
 import { StoreProductCategory, StoreRegion } from "@medusajs/types"
 import CategoryTemplate from "@modules/categories/templates"
+import CategoryHero from "@modules/categories/category-hero"  // Fixed import path
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 
 type Props = {
@@ -79,12 +80,40 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     notFound()
   }
 
+  // Get the main category (last one in the hierarchy)
+  const mainCategory = product_categories[product_categories.length - 1]
+  
+  // Build breadcrumbs from category hierarchy
+  const breadcrumbs = [
+    { label: "Home", href: `/${params.countryCode}` },
+    { label: "Categories", href: `/${params.countryCode}/categories` }
+  ]
+
+  // Add parent categories to breadcrumbs
+  product_categories.slice(0, -1).forEach((category, index) => {
+    const categoryPath = params.category.slice(0, index + 1).join('/')
+    breadcrumbs.push({
+      label: category.name,
+      href: `/${params.countryCode}/categories/${categoryPath}`
+    })
+  })
+
   return (
-    <CategoryTemplate
-      categories={product_categories}
-      sortBy={sortBy}
-      page={page}
-      countryCode={params.countryCode}
-    />
+    <>
+      {/* New Category Hero Section */}
+      <CategoryHero 
+        categoryName={mainCategory.name}
+        description={mainCategory.description || `Browse our selection of ${mainCategory.name.toLowerCase()} products for sanitary and industrial applications.`}
+        breadcrumbs={breadcrumbs}
+      />
+
+      {/* Existing Category Template */}
+      <CategoryTemplate
+        categories={product_categories}
+        sortBy={sortBy}
+        page={page}
+        countryCode={params.countryCode}
+      />
+    </>
   )
 }
