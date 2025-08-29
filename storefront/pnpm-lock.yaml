@@ -77,6 +77,9 @@ importers:
       axios:
         specifier: ^1.6.7
         version: 1.11.0
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
       lodash:
         specifier: ^4.17.21
         version: 4.17.21

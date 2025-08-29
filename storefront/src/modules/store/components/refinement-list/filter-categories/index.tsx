@@ -1,17 +1,15 @@
-
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { Label, Text, Checkbox, clx } from "@medusajs/ui"
-import { getCategoriesList } from "@lib/data/categories" // Assuming you have this function
 
 type FilterCategoriesProps = {
   setQueryParams: (name: string, value: string) => void
   "data-testid"?: string
 }
 
-// Inline SVG Icons (keep these)
+// Inline SVG Icons
 const ChevronDownMini = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -23,6 +21,12 @@ const ChevronUpMini = ({ className }: { className?: string }) => (
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
   </svg>
 )
+
+const categories = [
+  { id: 'pcat_01K0AZA2PHMYJABBFRR6RJPSHQ', value: 'shirts', label: 'Shirts' }, 
+  { id: 'pcat_01K0AZA2PJC04PC34FEKKX4N35', value: 'sweatshirts', label: 'Sweatshirts' }, 
+  // Add your other categories here with their actual IDs
+]
 
 const materials = [
   { value: 'T304', label: 'T304 Stainless Steel' },
@@ -49,21 +53,9 @@ const sizes = [
 ]
 
 const FilterCategories = ({ setQueryParams, "data-testid": dataTestId }: FilterCategoriesProps) => {
-  const [expandedSections, setExpandedSections] = useState(['categories'])
+  // CHANGED: Start with all sections expanded by default
+  const [expandedSections, setExpandedSections] = useState<string[]>(['categories', 'materials', 'sizes'])
   const searchParams = useSearchParams()
-  const [medusaCategories, setMedusaCategories] = useState<any[]>([])
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const { product_categories } = await getCategoriesList() // Fetch categories
-        setMedusaCategories(product_categories)
-      } catch (error) {
-        console.error("Error fetching categories:", error)
-      }
-    }
-    fetchCategories()
-  }, [])
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => 
@@ -74,37 +66,25 @@ const FilterCategories = ({ setQueryParams, "data-testid": dataTestId }: FilterC
   }
 
   const handleFilterChange = (filterType: string, value: string, checked: boolean) => {
-    // Map category name to ID
-    let paramValue = value
-    if (filterType === 'category') {
-      const selectedCategory = medusaCategories.find(cat => cat.handle === value || cat.name === value)
-      if (selectedCategory) {
-        paramValue = selectedCategory.id
-      }
-    }
-
-    if (checked) {
-      setQueryParams(filterType === 'category' ? 'category_id' : filterType, paramValue) // Use category_id
-    } else {
-      setQueryParams(filterType === 'category' ? 'category_id' : filterType, '')
-    }
+    const paramName = filterType === 'category' ? 'category_id' : filterType
+    setQueryParams(paramName, checked ? value : "")
   }
 
   const clearAllFilters = () => {
-    setQueryParams('category_id', '')
-    setQueryParams('material', '')
-    setQueryParams('size', '')
+    setQueryParams("category_id", "")
+    setQueryParams("material", "")
+    setQueryParams("size", "")
   }
 
   // Get active filters
   const activeFilters = []
-  const categoryId = searchParams.get('category_id')
-  const material = searchParams.get('material')
-  const size = searchParams.get('size')
+  const categoryId = searchParams.get("category_id")
+  const material = searchParams.get("material")
+  const size = searchParams.get("size")
   
   if (categoryId) {
-    const activeCategory = medusaCategories.find(cat => cat.id === categoryId)
-    if (activeCategory) activeFilters.push(`Category: ${activeCategory.name}`)
+    const categoryLabel = categories.find(cat => cat.id === categoryId)?.label || categoryId
+    activeFilters.push(`Category: ${categoryLabel}`)
   }
   if (material) activeFilters.push(`Material: ${material}`)
   if (size) activeFilters.push(`Size: ${size}`)
@@ -140,27 +120,27 @@ const FilterCategories = ({ setQueryParams, "data-testid": dataTestId }: FilterC
       {/* Categories Section */}
       <div className="flex flex-col gap-y-3">
         <button
-          onClick={() => toggleSection('categories')}
+          onClick={() => toggleSection("categories")}
           className="flex items-center justify-between w-full text-left group"
         >
           <Text className="txt-compact-small-plus text-ui-fg-muted">Product Categories</Text>
-          {expandedSections.includes('categories') ? (
+          {expandedSections.includes("categories") ? (
             <ChevronUpMini className="text-ui-fg-muted group-hover:text-ui-fg-base transition-colors" />
           ) : (
             <ChevronDownMini className="text-ui-fg-muted group-hover:text-ui-fg-base transition-colors" />
           )}
         </button>
 
-        {expandedSections.includes('categories') && (
+        {expandedSections.includes("categories") && (
           <div className="flex flex-col gap-y-2 max-h-48 overflow-y-auto">
-            {medusaCategories.map((category) => {
-              const isChecked = searchParams.get('category_id') === category.id
+            {categories.map((category) => {
+              const isChecked = searchParams.get("category_id") === category.id
               return (
                 <div key={category.id} className="flex gap-x-2 items-center">
                   <Checkbox
                     id={category.id}
                     checked={isChecked}
-                    onCheckedChange={(checked) => handleFilterChange('category', category.handle, !!checked)}
+                    onCheckedChange={(checked) => handleFilterChange("category", category.id, !!checked)}
                   />
                   <Label
                     htmlFor={category.id}
@@ -171,7 +151,7 @@ const FilterCategories = ({ setQueryParams, "data-testid": dataTestId }: FilterC
                       }
                     )}
                   >
-                    {category.name}
+                    {category.label}
                   </Label>
                 </div>
               )
@@ -183,27 +163,27 @@ const FilterCategories = ({ setQueryParams, "data-testid": dataTestId }: FilterC
       {/* Materials Section */}
       <div className="flex flex-col gap-y-3">
         <button
-          onClick={() => toggleSection('materials')}
+          onClick={() => toggleSection("materials")}
           className="flex items-center justify-between w-full text-left group"
         >
           <Text className="txt-compact-small-plus text-ui-fg-muted">Material</Text>
-          {expandedSections.includes('materials') ? (
+          {expandedSections.includes("materials") ? (
             <ChevronUpMini className="text-ui-fg-muted group-hover:text-ui-fg-base transition-colors" />
           ) : (
             <ChevronDownMini className="text-ui-fg-muted group-hover:text-ui-fg-base transition-colors" />
           )}
         </button>
 
-        {expandedSections.includes('materials') && (
+        {expandedSections.includes("materials") && (
           <div className="flex flex-col gap-y-2">
             {materials.map((material) => {
-              const isChecked = searchParams.get('material') === material.value
+              const isChecked = searchParams.get("material") === material.value
               return (
                 <div key={material.value} className="flex gap-x-2 items-center">
                   <Checkbox
                     id={material.value}
                     checked={isChecked}
-                    onCheckedChange={(checked) => handleFilterChange('material', material.value, !!checked)}
+                    onCheckedChange={(checked) => handleFilterChange("material", material.value, !!checked)}
                   />
                   <Label
                     htmlFor={material.value}
@@ -226,27 +206,27 @@ const FilterCategories = ({ setQueryParams, "data-testid": dataTestId }: FilterC
       {/* Sizes Section */}
       <div className="flex flex-col gap-y-3">
         <button
-          onClick={() => toggleSection('sizes')}
+          onClick={() => toggleSection("sizes")}
           className="flex items-center justify-between w-full text-left group"
         >
           <Text className="txt-compact-small-plus text-ui-fg-muted">Size</Text>
-          {expandedSections.includes('sizes') ? (
+          {expandedSections.includes("sizes") ? (
             <ChevronUpMini className="text-ui-fg-muted group-hover:text-ui-fg-base transition-colors" />
           ) : (
             <ChevronDownMini className="text-ui-fg-muted group-hover:text-ui-fg-base transition-colors" />
           )}
         </button>
 
-        {expandedSections.includes('sizes') && (
+        {expandedSections.includes("sizes") && (
           <div className="flex flex-col gap-y-2 max-h-48 overflow-y-auto">
             {sizes.map((size) => {
-              const isChecked = searchParams.get('size') === size.value
+              const isChecked = searchParams.get("size") === size.value
               return (
                 <div key={size.value} className="flex gap-x-2 items-center">
                   <Checkbox
                     id={size.value}
                     checked={isChecked}
-                    onCheckedChange={(checked) => handleFilterChange('size', size.value, !!checked)}
+                    onCheckedChange={(checked) => handleFilterChange("size", size.value, !!checked)}
                   />
                   <Label
                     htmlFor={size.value}

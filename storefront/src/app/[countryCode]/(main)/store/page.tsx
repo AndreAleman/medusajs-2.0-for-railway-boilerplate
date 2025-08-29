@@ -12,7 +12,7 @@ type Params = {
   searchParams: {
     sortBy?: SortOptions
     page?: string
-    categories?: string      // ← Add filter parameters
+    category_id?: string      // ← Add filter parameters
     material?: string        // ← Add filter parameters
     size?: string           // ← Add filter parameters
   }
@@ -22,7 +22,7 @@ type Params = {
 }
 
 export default async function StorePage({ searchParams, params }: Params) {
-  const { sortBy, page, categories, material, size } = searchParams  // ← Extract filter params
+  const { sortBy, page, category_id, material, size } = searchParams  // ← Extract filter params
 
   const breadcrumbs = [
     { label: "Home", href: `/${params.countryCode}` }
@@ -76,14 +76,15 @@ export default async function StorePage({ searchParams, params }: Params) {
       </section>
 
       {/* Store Template with Filter Parameters */}
-      <StoreTemplate
-        sortBy={sortBy}
-        page={page}
-        countryCode={params.countryCode}
-        categories={categories}    // ← Pass filter parameters
-        material={material}        // ← Pass filter parameters
-        size={size}               // ← Pass filter parameters
-      />
+    <StoreTemplate
+      sortBy={sortBy}
+      page={page}
+      countryCode={params.countryCode}
+      category_id={category_id}    // ← Use category_id
+      material={material}
+      size={size}
+    />
+
     </>
   )
 }

@@ -10,14 +10,14 @@ const StoreTemplate = ({
   sortBy,
   page,
   countryCode,
-  categories,        // ← Add filter parameters
+  category_id,        // ← Add filter parameters
   material,          // ← Add filter parameters
   size,             // ← Add filter parameters
 }: {
   sortBy?: SortOptions
   page?: string
   countryCode: string
-  categories?: string    // ← Add filter types
+  category_id?: string    // ← Add filter types
   material?: string      // ← Add filter types
   size?: string         // ← Add filter types
 }) => {
@@ -39,7 +39,7 @@ const StoreTemplate = ({
             sortBy={sort}
             page={pageNumber}
             countryCode={countryCode}
-            categories={categories}    // ← Pass filter parameters
+            categoryId={category_id}    // ← Pass filter parameters
             material={material}        // ← Pass filter parameters
             size={size}               // ← Pass filter parameters
           />
