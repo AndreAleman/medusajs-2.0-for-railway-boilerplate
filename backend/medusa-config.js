@@ -67,6 +67,7 @@ const medusaConfig = {
         api_version: new Date().toISOString().split("T")[0],
         dataset: process.env.SANITY_DATASET || "production",
         studio_url: process.env.SANITY_STUDIO_URL || "http://localhost:3333",
+        useCDN: false,
         type_map: {
           product: "product",
         },
