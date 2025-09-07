@@ -1,68 +1,4 @@
-// "use client"
 
-// import React from "react"
-// import { PortableText } from "@portabletext/react"
-// import { YouTubePreview } from "sanity/schemaTypes/youTubeType/YouTubePreview"
-// import ReactPlayer from "react-player"
-// import { serializers } from "./serializers"
-
-
-
-// type SanityTab = {
-//   _key: string
-//   title: string
-//   content: any[]
-// }
-// const components = {
-//   types: {
-//     youtube: ({value}) => {
-//       const { url } = value
-//       return <ReactPlayer url={url} />
-//     }
-//     // Add other custom types here
-//   }
-// }
-
-// export default function SanityTabs({ tabs }: { tabs: SanityTab[] }) {
-//   const [activeIdx, setActiveIdx] = React.useState(0)
-
-//   if (!tabs?.length) return null
-
-//   return (
-//     <div>
-//       {/* Tab headers */}
-//       <div className="flex border-b gap-2 mb-4">
-//         {tabs.map((tab, idx) => (
-//           <button
-//             key={tab._key}
-//             onClick={() => setActiveIdx(idx)}
-//             className={`px-4 py-2 transition border-b-2 ${
-//               activeIdx === idx ? "border-blue-600 font-bold" : "border-transparent"
-//             }`}
-//             type="button"
-//           >
-//             {tab.title}
-//           </button>
-//         ))}
-//       </div>
-//       {/* Tab content */}
-//       <div className="mt-2">
-//          <PortableText value={tabs} types={serializers} />
-//         {/* <PortableText
-//           value={tabs[activeIdx]?.content}
-//           // components={{
-//           //   types: {
-//           //    // image: 'image',
-//           //  //   table: TableBlock, // TableBlock should be a React component
-//           //     youtube: YouTubePreview,
-//           //     // add custom serializers (table, image, video) here when needed
-//           //   },
-//           // }}
-//         /> */}
-//       </div>
-//     </div>
-//   )
-// }
 "use client"
 
 import React, { useState } from "react"
@@ -143,6 +79,7 @@ export default function SanityTabs({ tabs }: { tabs: SanityTab[] }) {
 
   return (
     <div>
+      {/* Tab Headers - Horizontal */}
       <div className="flex border-b gap-2 mb-4">
         {tabs.map((tab, idx) => (
           <button
@@ -157,8 +94,19 @@ export default function SanityTabs({ tabs }: { tabs: SanityTab[] }) {
           </button>
         ))}
       </div>
+
+      {/* Tab Content - Render ALL but only show active one */}
       <div className="mt-2">
-        <PortableText value={tabs[activeIdx]?.content} components={components} />
+        {tabs.map((tab, idx) => (
+          <div
+            key={tab._key}
+            style={{ 
+              display: activeIdx === idx ? 'block' : 'none' 
+            }}
+          >
+            <PortableText value={tab.content} components={components} />
+          </div>
+        ))}
       </div>
     </div>
   )
