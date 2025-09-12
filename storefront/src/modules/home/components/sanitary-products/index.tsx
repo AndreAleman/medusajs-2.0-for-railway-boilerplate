@@ -58,7 +58,7 @@ export default function SanitaryProducts({ products }: Props) {
           {/* Left Column - Product List */}
           <div className="space-y-12">
             {displayProducts.map((product) => (
-              <div key={product.id} className="border-l-4 border-emerald-800 pl-6">
+              <div key={product.id} className="border-l-4 border-[#0f62fe] pl-6">
                 <h3 className="text-2xl font-bold text-gray-900 mb-4">
                   {product.title}
                 </h3>
@@ -67,7 +67,7 @@ export default function SanitaryProducts({ products }: Props) {
                 </p>
                 <a 
                   href={product.learnMoreUrl || "#"}
-                  className="inline-flex items-center text-emerald-800 font-medium hover:text-emerald-900 transition-colors"
+                  className="inline-flex items-center text-[#0f62fe] font-medium hover:opacity-80 transition-opacity"
                 >
                   Learn more
                   <svg 
@@ -90,9 +90,9 @@ export default function SanitaryProducts({ products }: Props) {
 
           {/* Right Column - Single Photo */}
           <div className="lg:pl-8">
-            <div className="aspect-[4/3] bg-gray-100 overflow-hidden">
+            <div className="aspect-[4/3] bg-gray-100 overflow-hidden rounded-lg">
               <img
-                src="/images/industrial-equipment-large.jpg"
+                src="/images/sanitary-products/sanitary-products.jpg"
                 alt="Industrial stainless steel equipment"
                 className="w-full h-full object-cover"
                 onError={(e) => {
