@@ -3,9 +3,9 @@ import Image from "next/image"
 
 export default function Hero() {
   return (
-    <section className="bg-white pt-0 pb-8 md:pb-12">
+    <section className="bg-white pt-36 pb-8 lg:pt-40 md:pb-12"> {/* Updated to match header height */}
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        {/* 60 / 40 on lg, fixed px on xl */}
+        {/* 60 / 40 on lg, fixed px on xl */}
         <div className="grid items-center gap-12 
                         lg:grid-cols-[60%_40%] 
                         xl:grid-cols-[593px_478px] xl:gap-[94px]">
@@ -26,53 +26,53 @@ export default function Hero() {
               {/* filled primary */}
               <a
                 href="/products"
-                className="inline-flex items-center justify-center rounded-md bg-[--brand-green]
-                           px-6 py-3 text-blue font-semibold hover:opacity-90
+                className="inline-flex items-center justify-center rounded-md bg-blue-600
+                           px-6 py-3 text-white font-semibold hover:bg-blue-700
                            focus-visible:outline focus-visible:outline-2
-                           focus-visible:outline-offset-2 focus-visible:outline-[--brand-green]">
+                           focus-visible:outline-offset-2 focus-visible:outline-blue-600">
                 Browse&nbsp;Products
               </a>
 
               {/* outlined secondary */}
               <a
                 href="/contact"
-                className="inline-flex items-center justify-center rounded-md border border-[--brand-green]
-                           bg-white px-6 py-3 text-[--brand-green] font-semibold hover:bg-gray-50
+                className="inline-flex items-center justify-center rounded-md border border-blue-600
+                           bg-white px-6 py-3 text-blue-600 font-semibold hover:bg-gray-50
                            focus-visible:outline focus-visible:outline-2
-                           focus-visible:outline-offset-2 focus-visible:outline-[--brand-green]">
+                           focus-visible:outline-offset-2 focus-visible:outline-blue-600">
                 Contact&nbsp;Us
               </a>
             </div>
           </div>
 
-          {/* ───────────── photo mosaic */}
+          {/* ───────────── photo mosaic (4 images) */}
           <div className="grid grid-cols-2 gap-4 lg:order-last xl:w-[478px]">
-            {/* left column – shifted up */}
+            {/* left column – shifted up (2 images) */}
             <div className="-translate-y-8 md:-translate-y-4 sm:translate-y-0 transition-transform">
-              {[1, 2, 3].map((n) => (
+              {[1, 2].map((n) => (
                 <Image
                   key={n}
-                  src={`/images/home_page${n}.svg`}   // images in /public/images
-                  alt=""
+                  src={`/images/hero/home_page${n}.jpg`}
+                  alt={`Industrial manufacturing equipment ${n}`}
                   width={231}
                   height={251}
-                  className="h-56 w-full object-cover rounded-md shadow
+                  className="h-56 w-full object-cover rounded-md shadow mb-4
                              [mask-image:linear-gradient(180deg,transparent_0%,black_35%,black_65%,transparent_100%)]"
                   priority={n === 1}
                 />
               ))}
             </div>
 
-            {/* right column – shifted down */}
+            {/* right column – shifted down (2 images) */}
             <div className="translate-y-16 md:translate-y-8 sm:translate-y-0 transition-transform">
-              {[4, 5, 6].map((n) => (
+              {[3, 4].map((n) => (
                 <Image
                   key={n}
-                  src={`/images/home_page${n}.svg`}
-                  alt=""
+                  src={`/images/hero/home_page${n}.jpg`}
+                  alt={`Precision sanitary fittings ${n}`}
                   width={231}
                   height={251}
-                  className="h-56 w-full object-cover rounded-md shadow
+                  className="h-56 w-full object-cover rounded-md shadow mb-4
                              [mask-image:linear-gradient(180deg,transparent_0%,black_35%,black_65%,transparent_100%)]"
                 />
               ))}
