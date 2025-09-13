@@ -1,7 +1,6 @@
 ///Users/andresreality/Documents/cowbird_ecommerce/medusajs-2.0-for-railway-boilerplate/storefront/src/sanity/schemaTypes/documents/productTab.ts
 
 import { defineType, defineField, defineArrayMember } from "sanity"
-import { table } from '@sanity/table';
 
 export const productTab = defineType({
   name: "productTab",
@@ -12,7 +11,7 @@ export const productTab = defineType({
       defineField({ name: 'content', type: 'array', of: [
         { type: 'block' },
         { type: 'youtube' }, // allow YouTube embeds inside tab content
-        { type: 'table' },    // <-- Add this for tables
+               // <-- Add this for tables
        { type: 'image' },    // <-- You might want images too
       ]}),
     ]
