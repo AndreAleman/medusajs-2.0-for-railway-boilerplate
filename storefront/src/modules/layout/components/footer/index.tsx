@@ -1,0 +1,208 @@
+import { getCategoriesList } from "@lib/data/categories"
+import { getCollectionsList } from "@lib/data/collections"
+import { Text, clx } from "@medusajs/ui"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
+
+export default async function Footer() {
+  const { collections } = await getCollectionsList(0, 6)
+  const { product_categories } = await getCategoriesList(0, 6)
+
+  return (
+    <footer className="bg-blue-600 text-white w-full">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        {/* Main Footer Content */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 py-16">
+          
+          {/* Company Info */}
+          <div className="lg:col-span-1">
+            <LocalizedClientLink
+              href="/"
+              className="text-2xl font-bold text-white hover:text-blue-100 transition-colors"
+            >
+              SanitubeTech
+            </LocalizedClientLink>
+            <p className="mt-4 text-blue-100 text-sm leading-relaxed">
+              Premium stainless steel sanitary fittings for food processing, 
+              brewing, and industrial applications. Quality you can trust.
+            </p>
+            
+            {/* Contact Info */}
+            <div className="mt-6 space-y-2">
+              <p className="text-sm text-blue-100">
+                <span className="font-medium">Email:</span>{" "}
+                <a href="mailto:info@sanitube.us" className="hover:text-white transition-colors">
+                  info@sanitube.us
+                </a>
+              </p>
+              <p className="text-sm text-blue-100">
+                <span className="font-medium">Phone:</span>{" "}
+                <a href="tel:+1234567890" className="hover:text-white transition-colors">
+                  (123) 456-7890
+                </a>
+              </p>
+            </div>
+          </div>
+
+          {/* Product Categories */}
+          {product_categories && product_categories?.length > 0 && (
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4">
+                Product Categories
+              </h3>
+              <ul className="space-y-2">
+                {product_categories?.slice(0, 6).map((c) => {
+                  if (c.parent_category) {
+                    return null
+                  }
+                  return (
+                    <li key={c.id}>
+                      <LocalizedClientLink
+                        className="text-blue-100 hover:text-white transition-colors text-sm"
+                        href={`/categories/${c.handle}`}
+                        data-testid="category-link"
+                      >
+                        {c.name}
+                      </LocalizedClientLink>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          )}
+
+          {/* Collections */}
+          {collections && collections.length > 0 && (
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4">
+                Collections
+              </h3>
+              <ul className="space-y-2">
+                {collections?.slice(0, 6).map((c) => (
+                  <li key={c.id}>
+                    <LocalizedClientLink
+                      className="text-blue-100 hover:text-white transition-colors text-sm"
+                      href={`/collections/${c.handle}`}
+                    >
+                      {c.title}
+                    </LocalizedClientLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Quick Links & Support */}
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4">
+              Quick Links
+            </h3>
+            <ul className="space-y-2">
+              <li>
+                <LocalizedClientLink
+                  href="/about"
+                  className="text-blue-100 hover:text-white transition-colors text-sm"
+                >
+                  About Us
+                </LocalizedClientLink>
+              </li>
+              <li>
+                <LocalizedClientLink
+                  href="/contact"
+                  className="text-blue-100 hover:text-white transition-colors text-sm"
+                >
+                  Contact Us
+                </LocalizedClientLink>
+              </li>
+              <li>
+                <LocalizedClientLink
+                  href="/shipping"
+                  className="text-blue-100 hover:text-white transition-colors text-sm"
+                >
+                  Shipping Info
+                </LocalizedClientLink>
+              </li>
+              <li>
+                <LocalizedClientLink
+                  href="/returns"
+                  className="text-blue-100 hover:text-white transition-colors text-sm"
+                >
+                  Returns & Exchanges
+                </LocalizedClientLink>
+              </li>
+              <li>
+                <LocalizedClientLink
+                  href="/bulk-orders"
+                  className="text-blue-100 hover:text-white transition-colors text-sm"
+                >
+                  Bulk Orders
+                </LocalizedClientLink>
+              </li>
+              <li>
+                <LocalizedClientLink
+                  href="/technical-specs"
+                  className="text-blue-100 hover:text-white transition-colors text-sm"
+                >
+                  Technical Specs
+                </LocalizedClientLink>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Newsletter Signup */}
+        <div className="border-t border-blue-500 py-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-2">
+                Stay Updated
+              </h3>
+              <p className="text-blue-100 text-sm">
+                Get the latest product updates and industry insights.
+              </p>
+            </div>
+            <div className="flex gap-2 max-w-md">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="flex-1 px-4 py-2 bg-blue-700 border border-blue-500 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+              />
+              <button className="px-6 py-2 bg-white text-blue-600 font-medium hover:bg-blue-50 transition-colors">
+                Subscribe
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Footer */}
+        <div className="border-t border-blue-500 py-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex flex-wrap gap-4 text-sm text-blue-200">
+              <LocalizedClientLink 
+                href="/privacy-policy" 
+                className="hover:text-white transition-colors"
+              >
+                Privacy Policy
+              </LocalizedClientLink>
+              <LocalizedClientLink 
+                href="/terms-of-service" 
+                className="hover:text-white transition-colors"
+              >
+                Terms of Service
+              </LocalizedClientLink>
+              <LocalizedClientLink 
+                href="/cookies" 
+                className="hover:text-white transition-colors"
+              >
+                Cookie Policy
+              </LocalizedClientLink>
+            </div>
+            
+            <Text className="text-sm text-blue-200">
+              © {new Date().getFullYear()} SanitubeTech. All rights reserved.
+            </Text>
+          </div>
+        </div>
+      </div>
+    </footer>
+  )
+}

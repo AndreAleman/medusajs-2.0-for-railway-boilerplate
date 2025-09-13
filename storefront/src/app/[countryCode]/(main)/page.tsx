@@ -6,7 +6,6 @@ import IndustriesSupport from "@modules/home/components/industries-support"
 import SanitaryProducts from "@modules/home/components/sanitary-products"
 import AboutUs from "@modules/home/components/about-us"
 import ContactForm from "@modules/home/components/contact-form"
-import FeaturedProducts from "@modules/home/components/featured-products"
 import { getCollectionsWithProducts } from "@lib/data/collections"
 import { getRegion } from "@lib/data/regions"
 
@@ -71,12 +70,6 @@ export default async function Home({
 
       <ProductRangeWrapper products={rangeProducts} />
 
-      <ProductCategorySection 
-        categoryName="Tube"
-        description="Our welded stainless steel tubing is precision-crafted to meet ASTM A269 (unpolished) and A270 (polished) standards, ensuring strength, hygiene, and dependable performance for sanitary applications."
-        images={tubeImages}
-      />
-
       <IndustriesSupport />
 
       <SanitaryProducts />
@@ -84,10 +77,6 @@ export default async function Home({
       <AboutUs />
 
       <ContactForm />
-
-      <div className="py-12">
-        <FeaturedProducts collections={collections} region={region} />
-      </div>
     </>
   )
 }
