@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useRef } from "react"
 
 const navigationItems = [
   { 
@@ -32,6 +32,30 @@ interface NavigationProps {
 export default function NavigationMenu({ className = "" }: NavigationProps) {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [activeSubDropdown, setActiveSubDropdown] = useState<string | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout>()
+
+  const handleMouseEnter = (itemLabel: string) => {
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+    setActiveDropdown(itemLabel)
+  }
+
+  const handleMouseLeave = () => {
+    // Add delay before hiding dropdown
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+      setActiveSubDropdown(null)
+    }, 200) // 200ms delay
+  }
+
+  const handleDropdownEnter = () => {
+    // Clear timeout when entering dropdown
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+  }
 
   return (
     <nav className={`flex items-center space-x-8 ${className}`}>
@@ -39,11 +63,8 @@ export default function NavigationMenu({ className = "" }: NavigationProps) {
         <div 
           key={item.label}
           className="relative group"
-          onMouseEnter={() => item.submenu && setActiveDropdown(item.label)}
-          onMouseLeave={() => {
-            setActiveDropdown(null)
-            setActiveSubDropdown(null)
-          }}
+          onMouseEnter={() => item.submenu && handleMouseEnter(item.label)}
+          onMouseLeave={handleMouseLeave}
         >
           <Link
             href={item.href}
@@ -59,7 +80,11 @@ export default function NavigationMenu({ className = "" }: NavigationProps) {
           
           {/* First Level Dropdown */}
           {item.submenu && activeDropdown === item.label && (
-            <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-100 py-2 z-50">
+            <div 
+              className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-100 py-2 z-50"
+              onMouseEnter={handleDropdownEnter}
+              onMouseLeave={handleMouseLeave}
+            >
               {item.submenu.map((subItem) => (
                 <div
                   key={subItem.label}
