@@ -174,6 +174,8 @@ export default function ContactForm() {
 
           {/* Terms and Submit */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+            {/* Properly aligned checkbox */}
+            {/* Properly aligned checkbox */}
             <div className="flex items-center">
               <input
                 id="agreeToTerms"
@@ -181,17 +183,20 @@ export default function ContactForm() {
                 type="checkbox"
                 checked={formData.agreeToTerms}
                 onChange={handleCheckboxChange}
-                className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 flex-shrink-0"
               />
-              <label htmlFor="agreeToTerms" className="ml-2 block text-sm text-gray-700">
+              <label htmlFor="agreeToTerms" className="ml-3 block text-sm text-gray-700">
                 I have agreed to the Terms & Conditions
               </label>
             </div>
 
+
+            {/* Button with primary color hover */}
+            {/* Button with primary color and darker hover */}
             <button
               type="submit"
               disabled={!formData.agreeToTerms}
-              className="inline-flex items-center px-8 py-4 bg-emerald-800 text-white font-medium hover:bg-emerald-900 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200"
+              className="inline-flex items-center px-8 py-4 bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200"
             >
               Submit Form
               <svg 
@@ -208,6 +213,7 @@ export default function ContactForm() {
                 />
               </svg>
             </button>
+
           </div>
         </form>
       </div>

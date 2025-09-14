@@ -1,6 +1,6 @@
 import { getCategoriesList } from "@lib/data/categories"
 import { getCollectionsList } from "@lib/data/collections"
-import { Text, clx } from "@medusajs/ui"
+import { Text } from "@medusajs/ui"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 export default async function Footer() {
@@ -19,20 +19,21 @@ export default async function Footer() {
               href="/"
               className="text-2xl font-bold text-white hover:text-blue-100 transition-colors"
             >
-              SanitubeTech
+              Cowbird Depot
             </LocalizedClientLink>
             <p className="mt-4 text-blue-100 text-sm leading-relaxed">
               Premium stainless steel sanitary fittings for food processing, 
-              brewing, and industrial applications. Quality you can trust.
+              pharmaceuticals, brewing, and industrial applications. Quality you can trust.
             </p>
             
             {/* Contact Info */}
             <div className="mt-6 space-y-2">
               <p className="text-sm text-blue-100">
                 <span className="font-medium">Email:</span>{" "}
-                <a href="mailto:info@sanitube.us" className="hover:text-white transition-colors">
-                  info@sanitube.us
-                </a>
+                  <a href="mailto:info@cowbirddepot.com" className="hover:text-white transition-colors">
+                    info@cowbirddepot.com
+                  </a>
+
               </p>
               <p className="text-sm text-blue-100">
                 <span className="font-medium">Phone:</span>{" "}
@@ -94,7 +95,7 @@ export default async function Footer() {
           {/* Quick Links & Support */}
           <div>
             <h3 className="text-lg font-semibold text-white mb-4">
-              Quick Links
+              Company
             </h3>
             <ul className="space-y-2">
               <li>
@@ -107,6 +108,14 @@ export default async function Footer() {
               </li>
               <li>
                 <LocalizedClientLink
+                  href="/blog"
+                  className="text-blue-100 hover:text-white transition-colors text-sm"
+                >
+                  Blog
+                </LocalizedClientLink>
+              </li>
+              <li>
+                <LocalizedClientLink
                   href="/contact"
                   className="text-blue-100 hover:text-white transition-colors text-sm"
                 >
@@ -115,18 +124,18 @@ export default async function Footer() {
               </li>
               <li>
                 <LocalizedClientLink
-                  href="/shipping"
+                  href="/shipping-returns"
                   className="text-blue-100 hover:text-white transition-colors text-sm"
                 >
-                  Shipping Info
+                  Shipping & Returns
                 </LocalizedClientLink>
               </li>
               <li>
                 <LocalizedClientLink
-                  href="/returns"
+                  href="/technical-support"
                   className="text-blue-100 hover:text-white transition-colors text-sm"
                 >
-                  Returns & Exchanges
+                  Technical Support
                 </LocalizedClientLink>
               </li>
               <li>
@@ -135,14 +144,6 @@ export default async function Footer() {
                   className="text-blue-100 hover:text-white transition-colors text-sm"
                 >
                   Bulk Orders
-                </LocalizedClientLink>
-              </li>
-              <li>
-                <LocalizedClientLink
-                  href="/technical-specs"
-                  className="text-blue-100 hover:text-white transition-colors text-sm"
-                >
-                  Technical Specs
                 </LocalizedClientLink>
               </li>
             </ul>
@@ -164,9 +165,9 @@ export default async function Footer() {
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 px-4 py-2 bg-blue-700 border border-blue-500 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                className="flex-1 px-4 py-2 bg-blue-700 border border-blue-500 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-300 rounded"
               />
-              <button className="px-6 py-2 bg-white text-blue-600 font-medium hover:bg-blue-50 transition-colors">
+              <button className="px-6 py-2 bg-white text-blue-600 font-medium hover:bg-blue-50 transition-colors rounded">
                 Subscribe
               </button>
             </div>
@@ -190,7 +191,7 @@ export default async function Footer() {
                 Terms of Service
               </LocalizedClientLink>
               <LocalizedClientLink 
-                href="/cookies" 
+                href="/cookie-policy" 
                 className="hover:text-white transition-colors"
               >
                 Cookie Policy
@@ -198,7 +199,7 @@ export default async function Footer() {
             </div>
             
             <Text className="text-sm text-blue-200">
-              © {new Date().getFullYear()} SanitubeTech. All rights reserved.
+              © {new Date().getFullYear()} Cowbird Depot. All rights reserved.
             </Text>
           </div>
         </div>
