@@ -6,7 +6,7 @@ import { useState, useRef } from "react"
 const navigationItems = [
   { 
     label: "Shop", 
-    href: "/categories",
+    href: "/store",
     submenu: [
       { 
         label: "Categories", 
