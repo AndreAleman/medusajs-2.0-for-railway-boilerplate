@@ -67,7 +67,7 @@ export default function AddToCartButton({ product, variant }: AddToCartButtonPro
     <button
       onClick={handleAddToCart}
       disabled={!inStock || !selectedVariant || isAdding}
-      className="px-4 py-2 bg-emerald-800 text-white text-sm font-medium hover:bg-emerald-900 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+      className="px-4 py-2 bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
       aria-label="Add to cart"
     >
       {isAdding ? (
