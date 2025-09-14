@@ -11,6 +11,9 @@ import productSchema from "./documents/product"
 import { productTab } from "./documents/productTab"
 import { youtube } from "./youTubeType"
 
+// Update import name
+import { productTable } from "./objects/table"
+
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
     // Blog schemas (new from template)
@@ -21,6 +24,8 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     // Your existing product schemas
     productSchema, 
     productTab, 
-    youtube
+    youtube,
+    // Update type name
+    productTable
   ],
 }

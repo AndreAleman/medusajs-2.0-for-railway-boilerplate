@@ -1,11 +1,12 @@
-
-"use client"
+// src/modules/products/components/sanity-tabs/index.tsx - SIMPLIFIED
+'use client'
 
 import React, { useState } from "react"
 import { PortableText } from "@portabletext/react"
 import ReactPlayer from "react-player"
-import { urlFor } from '../../../../sanity/lib/image' // Make sure this path is correct for your structure
+import { urlFor } from '../../../../sanity/lib/image'
 
+// Remove HtmlTab type - everything is now SanityTab
 type SanityTab = {
   _key: string
   title: string
@@ -15,59 +16,55 @@ type SanityTab = {
 const components = {
   types: {
     youtube: ({ value }: { value: { url: string } }) => {
-      console.log('YouTube block found! Value:', value)
-      if (!value?.url) {
-        return <div>No YouTube URL provided</div>
+      if (!value?.url) return <div>No YouTube URL provided</div>
+      return (
+        <div className="my-4">
+          <ReactPlayer src={value.url} controls width="100%" height="400px" />
+        </div>
+      )
+    },
+    image: ({ value }: any) => {
+      if (value?.asset) {
+        const imgUrl = urlFor(value).width(800).auto('format').url()
+        return (
+          <div className="my-4">
+            <img src={imgUrl} alt={value.alt || ''} className="max-w-full h-auto rounded shadow" loading="lazy" />
+          </div>
+        )
+      } else if (value?.url) {
+        // Handle converted HTML images with direct URLs
+        return (
+          <div className="my-4">
+            <img src={value.url} alt={value.alt || ''} className="max-w-full h-auto rounded shadow" loading="lazy" />
+          </div>
+        )
       }
-      return (
-        <div className="my-4">
-          <ReactPlayer
-            src={value.url} // must use 'url' for ReactPlayer!
-            controls
-            width="100%"
-            height="400px"
-          />
-        </div>
-      )
+      return <div>No image</div>
     },
-    image: ({ value }: { value: any }) => {
-      if (!value?.asset) return <div>No image</div>
-      const imgUrl = urlFor(value).width(800).auto('format').url()
-      return (
-        <div className="my-4">
-          <img
-            src={imgUrl}
-            alt={value.alt || ''}
-            className="max-w-full h-auto rounded shadow"
-            loading="lazy"
-          />
-        </div>
-      )
-    },
-    table: ({ value }: { value: any }) => {
-      if (!value?.rows) return <div>No rows</div>
-      return (
-        <div className="my-6 overflow-auto">
-          <table className="min-w-full border-collapse border border-gray-300 rounded-lg">
-            <tbody>
-              {value.rows.map((row: any, rowIndex: number) => (
-                <tr key={row._key || rowIndex} className={rowIndex === 0 ? "bg-gray-50" : ""}>
-                  {row.cells.map((cell: string, cellIndex: number) => (
-                    <td
-                      key={cellIndex}
-                      className="border border-gray-300 px-4 py-2 text-sm min-h-[40px]"
-                    >
-                      {cell || '\u00A0'} {/* Non-breaking space for empty cells */}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )
-    }
-  }
+    // Updated table component with colspan/rowspan support
+    table: ({ value }: any) => (
+      <div className="my-6 overflow-auto">
+        <table className="min-w-full border-collapse border border-gray-300 rounded-lg">
+          <tbody>
+            {value.rows?.map((row: any, i: number) => (
+              <tr key={i} className={i === 0 ? "bg-gray-50" : ""}>
+                {row.cells?.map((cell: any, j: number) => (
+                  <td
+                    key={j}
+                    colSpan={cell.colspan || 1}
+                    rowSpan={cell.rowspan || 1}
+                    className="border border-gray-300 px-4 py-2 text-sm min-h-[40px]"
+                  >
+                    {cell.text || '\u00A0'}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    ),
+  },
 }
 
 export default function SanityTabs({ tabs }: { tabs: SanityTab[] }) {
@@ -75,11 +72,8 @@ export default function SanityTabs({ tabs }: { tabs: SanityTab[] }) {
 
   if (!tabs?.length) return null
 
-  console.log('Active tab content:', tabs[activeIdx]?.content)
-
   return (
     <div>
-      {/* Tab Headers - Horizontal */}
       <div className="flex border-b gap-2 mb-4">
         {tabs.map((tab, idx) => (
           <button
@@ -95,16 +89,15 @@ export default function SanityTabs({ tabs }: { tabs: SanityTab[] }) {
         ))}
       </div>
 
-      {/* Tab Content - Render ALL but only show active one */}
       <div className="mt-2">
         {tabs.map((tab, idx) => (
           <div
             key={tab._key}
-            style={{ 
-              display: activeIdx === idx ? 'block' : 'none' 
-            }}
+            style={{ display: activeIdx === idx ? 'block' : 'none' }}
           >
-            <PortableText value={tab.content} components={components} />
+            <div className="prose prose-lg max-w-none">
+              <PortableText value={tab.content} components={components} />
+            </div>
           </div>
         ))}
       </div>

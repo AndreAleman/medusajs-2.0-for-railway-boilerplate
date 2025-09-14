@@ -81,11 +81,8 @@ export default async function ProductPage({ params }: Props) {
     notFound()
   }
 
-
-  // For null safety, you might want to handle 404s or fallback:
   const sanity = (await client.getDocument(pricedProduct.id))
-  console.log(sanity)
-
+  console.log("parent:", JSON.stringify(sanity, null, 2))
 
   return (
     <ProductTemplate
@@ -93,9 +90,11 @@ export default async function ProductPage({ params }: Props) {
       region={region}
       countryCode={params.countryCode}
       sanity={{
-        content: sanity?.content,
+        // Pass description as PortableText blocks, not as content string
+        description: sanity?.description ?? [],  // ← ADD THIS
         tabs: sanity?.tabs ?? [],
       }}
     />
   );
 }
+

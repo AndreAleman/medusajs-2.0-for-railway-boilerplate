@@ -2,15 +2,37 @@ import { ComposeIcon } from "@sanity/icons"
 import { DocumentDefinition } from "sanity"
 import { productTab } from './productTab'
 
-
 const productSchema: DocumentDefinition = {
   fields: [
     {
       name: "title",
       type: "string",
     },
+    // Updated description field to include table
     {
-      name: "tabs", // 2. Add the tabs field!
+      name: "description",
+      title: "Product Description", 
+      type: "array",
+      of: [
+        { type: "block" },
+        { 
+          type: "image",
+          options: { hotspot: true },
+          fields: [
+            {
+              name: "alt",
+              type: "string", 
+              title: "Alternative Text",
+            }
+          ]
+        },
+        // ADD THIS LINE - Now tables are supported!
+        { type: "productTable" }
+      ],
+      group: "content",
+    },
+    {
+      name: "tabs",
       type: "array",
       title: "Product Information Tabs",
       of: [{ type: "productTab" }],
