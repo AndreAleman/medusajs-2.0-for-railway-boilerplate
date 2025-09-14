@@ -10,7 +10,7 @@ import { getCollectionsWithProducts } from "@lib/data/collections"
 import { getRegion } from "@lib/data/regions"
 
 export const metadata: Metadata = {
-  title: "Medusa Next.js Starter Template",
+  title: "Stainless Steel Tubing, Fittings, and Valves | Cowbird Depot",
   description:
     "this is where to edit",
 }
