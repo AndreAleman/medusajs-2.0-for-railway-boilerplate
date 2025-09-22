@@ -4,11 +4,13 @@
 // // Use your existing types (Medusa AI confirmed they're correct)
 // import { WooCommerceProduct } from '../lib/woocommerce/types.js'
 // import { MedusaProductInput } from '../lib/woocommerce/types.js'
+// import { CategoryManager } from './category-manager.js' // Add this line
 
 // class WooToMedusaMigration {
 //   private wooClient: axios.AxiosInstance
 //   private medusaClient: axios.AxiosInstance
 //   private authToken: string | null = null
+//   private categoryManager: CategoryManager // Add this line
 
 //     constructor() {
 //     // WooCommerce client - ✅ FIXED: Use correct environment variable names
@@ -28,6 +30,8 @@
 //         'Content-Type': 'application/json'
 //         }
 //     })
+
+//     this.categoryManager = new CategoryManager()
 //     }
 
 
@@ -389,28 +393,35 @@
 // /**
 //  * COMPLETE TEST: Full WooCommerce → Medusa migration (handles existing products)
 //  */
-// async testCompleteMigration(productId: number): Promise<void> {
+// /**
+//  * COMPLETE TEST: Full WooCommerce → Medusa migration with categories
+//  */
+// async testCompleteMigration(productId: number, overwriteCategories: boolean = false): Promise<void> {
 //   try {
 //     console.log(`🚀 Testing complete migration for WooCommerce product ${productId}`)
-
-//     // Step 1: Transform WooCommerce data
+//     console.log(`📂 Category mode: ${overwriteCategories ? 'REPLACE' : 'ADD'}`)
+    
+//     // Steps 1-3: Fetch and transform (existing code)
 //     const parentResponse = await this.wooClient.get(`/products/${productId}`)
 //     const variationsResponse = await this.wooClient.get(`/products/${productId}/variations`)
-//     const medusaProduct = this.transformWooToMedusaProduct(parentResponse.data, variationsResponse.data)
-
-//     // Step 2: Check if product already exists
+//     const wooProduct = parentResponse.data
+    
+//     // Step 2: Process categories FIRST  
+//     console.log('📂 Processing product categories...')
+//     const categoryIds = await this.categoryManager.ensureCategories(wooProduct.categories || [])
+    
+//     const medusaProduct = this.transformWooToMedusaProduct(wooProduct, variationsResponse.data)
+    
+//     // Steps 4-6: Product creation/update (existing code)
 //     console.log(`🔍 Checking if product exists: ${medusaProduct.handle}`)
 //     const existingProductId = await this.checkProductExists(medusaProduct.handle!)
 
 //     let productToUpdate: string
-
 //     if (existingProductId) {
 //       console.log(`✅ Product already exists: ${existingProductId}`)
-//       console.log(`⏭️  Skipping creation, proceeding to inventory update...`)
 //       productToUpdate = existingProductId
 //     } else {
 //       console.log(`🆕 Product doesn't exist, creating new one...`)
-//       // Step 2b: Create new product in Medusa
 //       const createdProduct = await this.createProductInMedusa(medusaProduct)
 //       productToUpdate = createdProduct.id
 //     }
@@ -418,33 +429,26 @@
 //     await this.ensureInventoryItems(productToUpdate)
 
 //     if (existingProductId) {
-//       // fetch current status
 //       const { data } = await this.medusaClient.get(`/admin/products/${existingProductId}`)
 //       if (data.product.status !== 'published') {
 //         console.log('🔄 Product exists but is draft – publishing it now')
-//         await this.medusaClient.post(
-//           `/admin/products/${existingProductId}`,
-//           { status: 'published' }
-//         )
+//         await this.medusaClient.post(`/admin/products/${existingProductId}`, { status: 'published' })
 //       }
 //     }
 
+//     // Step 7: Assign categories with chosen mode
+//     if (categoryIds.length > 0) {
+//       const mode = overwriteCategories ? 'replace' : 'add'
+//       await this.categoryManager.smartAssignCategories(productToUpdate, categoryIds, mode)
+//     }
 
-
-
-
-
-
-
-//     // Step 3: Always update inventory (whether new or existing)
-//     console.log(`📦 Updating inventory for product: ${productToUpdate}`)
 //     await this.completeInventorySetup(productToUpdate, variationsResponse.data)
 
-//     console.log('\n🎉 COMPLETE MIGRATION SUCCESS!')
-//     console.log(`   • Product ID: ${productToUpdate}`)
-//     console.log(`   • Admin: http://localhost:9000/app/products/${productToUpdate}`)
-//     console.log(`   • Store API: http://localhost:9000/store/products?handle=${medusaProduct.handle}`)
-//     console.log(`   • Storefront: http://localhost:8000/products/${medusaProduct.handle}`)
+//     console.log('\n🎉 COMPLETE MIGRATION WITH CATEGORIES SUCCESS!')
+//     console.log(`• Product ID: ${productToUpdate}`)
+//     console.log(`Description Migration: npx tsx src/scripts/description-to-meta.ts process ${productToUpdate}`)
+//     console.log(`• Categories: ${categoryIds.length} ${overwriteCategories ? 'replaced' : 'assigned'}`)
+//     console.log(`• Admin: http://localhost:9000/app/products/${productToUpdate}`)
 
 //   } catch (error: any) {
 //     console.error('❌ Complete migration failed:', error.message)
@@ -455,35 +459,35 @@
 
 
 
+
 // //end
 // }
 
 // // Test runner
-// async function main() {
+// async function main(): Promise<void> {
 //   const action = process.argv[2] || 'transform'
 //   const productId = parseInt(process.argv[3] || '513')
+//   const overwriteCategories = process.argv[4] === '--overwrite-categories'
   
 //   console.log(`🚀 Starting WooCommerce → Medusa migration`)
-//   console.log(`📦 Action: ${action}, Product ID: ${productId}\n`)
+//   console.log(`📦 Action: ${action}, Product ID: ${productId}`)
+//   if (overwriteCategories) {
+//     console.log(`🔄 Category mode: REPLACE`)
+//   }
 
 //   const migration = new WooToMedusaMigration()
   
 //   try {
-//     if (action === 'transform') {
-//       await migration.testTransformation(productId)
-//     } else if (action === 'create') {
-//       await migration.testTransformationAndCreation(productId)
-//     } else if (action === 'complete') {
-//       await migration.testCompleteMigration(productId)
-//     } else {
-//       console.error('❌ Usage: npx tsx src/scripts/woo-to-medusa-clean.ts [transform|create|complete] [product-id]')
-//       process.exit(1)
+//     if (action === 'complete') {
+//       await migration.testCompleteMigration(productId, overwriteCategories)
 //     }
+//     // ... other actions stay the same
 //   } catch (error: any) {
 //     console.error('💥 Migration failed:', error.message)
 //     process.exit(1)
 //   }
 // }
+
 
 
 
