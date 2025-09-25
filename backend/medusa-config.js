@@ -164,17 +164,40 @@ const medusaConfig = {
           host: MEILISEARCH_HOST,
           apiKey: MEILISEARCH_ADMIN_KEY
         },
-        settings: {
-          products: {
-            type: 'products',
-            enabled: true,
-            fields: ['id', 'title', 'description', 'handle', 'variant_sku', 'thumbnail'],
-            indexSettings: {
-              searchableAttributes: ['title', 'description', 'variant_sku'],
-              displayedAttributes: ['id', 'handle', 'title', 'description', 'variant_sku', 'thumbnail'],
-              filterableAttributes: ['id', 'handle'],
-            },
-            primaryKey: 'id',
+    settings: {
+      products: {
+        type: 'products',
+        enabled: true,
+        fields: [
+          'id', 
+          'title', 
+          'description', 
+          'handle', 
+          'thumbnail',
+          'metadata.parent_sku',  // Parent SKU like "13H"
+          'variants'              // Include all variant data
+        ],
+        indexSettings: {
+          searchableAttributes: [
+            'title', 
+            'description', 
+            'metadata.parent_sku',
+            'variants.sku',         // Search variant SKUs like "13H-300"
+            'variants.title'        // Search variant titles like "T304, 3\""
+          ],
+          displayedAttributes: [
+            'id', 
+            'handle', 
+            'title', 
+            'description', 
+            'thumbnail',
+            'metadata.parent_sku',
+            'variants.sku',
+            'variants.title'
+          ],
+          filterableAttributes: ['id', 'handle', 'metadata.parent_sku'],
+        },
+        primaryKey: 'id',
           }
         }
       }
