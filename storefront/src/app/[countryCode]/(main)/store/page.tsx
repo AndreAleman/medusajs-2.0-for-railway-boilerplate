@@ -14,7 +14,8 @@ type Params = {
     page?: string
     category_id?: string      // ← Add filter parameters
     material?: string        // ← Add filter parameters
-    size?: string           // ← Add filter parameters
+    size?: string   
+    q?: string        // ← Add filter parameters
   }
   params: {
     countryCode: string
@@ -22,7 +23,7 @@ type Params = {
 }
 
 export default async function StorePage({ searchParams, params }: Params) {
-  const { sortBy, page, category_id, material, size } = searchParams  // ← Extract filter params
+  const { sortBy, page, category_id, material, size, q } = searchParams  // ← Extract filter params
 
   const breadcrumbs = [
     { label: "Home", href: `/${params.countryCode}` }
@@ -83,6 +84,7 @@ export default async function StorePage({ searchParams, params }: Params) {
       category_id={category_id}    // ← Use category_id
       material={material}
       size={size}
+      q={searchParams.q} 
     />
 
     </>

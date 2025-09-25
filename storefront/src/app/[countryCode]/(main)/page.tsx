@@ -8,6 +8,7 @@ import AboutUs from "@modules/home/components/about-us"
 import ContactForm from "@modules/home/components/contact-form"
 import { getCollectionsWithProducts } from "@lib/data/collections"
 import { getRegion } from "@lib/data/regions"
+import MeiliSearchComponent from "@modules/search/components/meilisearch-component"
 
 export const metadata: Metadata = {
   title: "Stainless Steel Tubing, Fittings, and Valves | Cowbird Depot",

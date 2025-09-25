@@ -5,7 +5,7 @@ import { getCategoryByHandle, listCategories } from "@lib/data/categories"
 import { listRegions } from "@lib/data/regions"
 import { StoreProductCategory, StoreRegion } from "@medusajs/types"
 import CategoryTemplate from "@modules/categories/templates"
-import CategoryHero from "@modules/categories/category-hero"  // Fixed import path
+import CategoryHero from "@modules/categories/category-hero"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 
 type Props = {
@@ -45,9 +45,15 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
-    const { product_categories } = await getCategoryByHandle(
-      params.category
-    )
+    const { product_categories } = await getCategoryByHandle(params.category)
+
+    // Add safety check for metadata generation
+    if (!product_categories || product_categories.length === 0) {
+      return {
+        title: "Category not found",
+        description: "The requested category could not be found.",
+      }
+    }
 
     const title = product_categories
       .map((category: StoreProductCategory) => category.name)
@@ -58,30 +64,39 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       `${title} category.`
 
     return {
-      title: `${title} | Medusa Store`,
+      title: `${title} | Cowbird Depot`,
       description,
       alternates: {
         canonical: `${params.category.join("/")}`,
       },
     }
   } catch (error) {
-    notFound()
+    return {
+      title: "Category not found",
+      description: "The requested category could not be found.",
+    }
   }
 }
 
 export default async function CategoryPage({ params, searchParams }: Props) {
   const { sortBy, page } = searchParams
 
-  const { product_categories } = await getCategoryByHandle(
-    params.category
-  )
+  const { product_categories } = await getCategoryByHandle(params.category)
 
-  if (!product_categories) {
+  // Single check with better error handling
+  if (!product_categories || product_categories.length === 0) {
+    console.log('❌ No categories found for:', params.category)
     notFound()
   }
 
   // Get the main category (last one in the hierarchy)
   const mainCategory = product_categories[product_categories.length - 1]
+  
+  // Add safety check
+  if (!mainCategory) {
+    console.log('❌ Main category is undefined:', product_categories)
+    notFound()
+  }
   
   // Build breadcrumbs from category hierarchy
   const breadcrumbs = [
