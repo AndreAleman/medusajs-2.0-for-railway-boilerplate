@@ -74,6 +74,20 @@ const medusaConfig = {
       },
     },
     {
+      resolve: "@medusajs/medusa/fulfillment",
+      options: {
+        providers: [
+          {
+            resolve: "./src/modules/shipstation",
+            id: "shipstation",
+            options: {
+              api_key: process.env.SHIPSTATION_API_KEY,
+            },
+          },
+        ],
+      },
+    },
+    {
       key: Modules.FILE,
       resolve: '@medusajs/file',
       options: {
