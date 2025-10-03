@@ -18,19 +18,19 @@ export default function SanitaryProducts({ products }: Props) {
       id: "tube",
       title: "Tube",
       description: "Cowbird Depot welded stainless steel tubing is engineered to meet the American Society for Testing and Materials (ASTM) type A269 unpolished and A270 polished designations.",
-      learnMoreUrl: "/products/tube"
+      learnMoreUrl: "/categories/tube"
     },
     {
       id: "valves", 
       title: "Valves",
       description: "Cowbird Depot features a full line of industrial and sanitary (clamp-end) stainless steel valves. Designed to comply with all US and international quality and dimensional standards",
-      learnMoreUrl: "/products/valves"
+      learnMoreUrl: "/categories/valves"
     },
     {
       id: "fittings",
       title: "Fittings", 
       description: "Cowbird Depot stainless steel fittings are designed for a wide range of sanitary processing and industrial applications. Take a look around at our extensive inventory of both",
-      learnMoreUrl: "/products/fittings"
+      learnMoreUrl: "/categories/fittings"
     }
   ]
 

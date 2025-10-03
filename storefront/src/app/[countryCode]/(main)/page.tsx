@@ -71,7 +71,8 @@ export default async function Home({
 
       <ProductRangeWrapper products={rangeProducts} />
 
-      <IndustriesSupport />
+     
+        {/*  <IndustriesSupport /> */}
 
       <SanitaryProducts />
 

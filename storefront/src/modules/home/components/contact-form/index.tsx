@@ -70,7 +70,7 @@ export default function ContactForm() {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  placeholder="Akari Mizunashil"
+                  placeholder="First Name"
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
@@ -92,7 +92,7 @@ export default function ContactForm() {
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleInputChange}
-                  placeholder="Akari Mizunashil"
+                  placeholder="Last Name"
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
