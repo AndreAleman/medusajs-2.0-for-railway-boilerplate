@@ -17,19 +17,19 @@ export default function SanitaryProducts({ products }: Props) {
     {
       id: "tube",
       title: "Tube",
-      description: "Sanitube welded stainless steel tubing is engineered to meet the American Society for Testing and Materials (ASTM) type A269 unpolished and A270 polished designations.",
+      description: "Cowbird Depot welded stainless steel tubing is engineered to meet the American Society for Testing and Materials (ASTM) type A269 unpolished and A270 polished designations.",
       learnMoreUrl: "/products/tube"
     },
     {
       id: "valves", 
       title: "Valves",
-      description: "Sanitube features a full line of industrial and sanitary (clamp-end) stainless steel valves. Designed to comply with all US and international quality and dimensional standards",
+      description: "Cowbird Depot features a full line of industrial and sanitary (clamp-end) stainless steel valves. Designed to comply with all US and international quality and dimensional standards",
       learnMoreUrl: "/products/valves"
     },
     {
       id: "fittings",
       title: "Fittings", 
-      description: "Sanitube stainless steel fittings are designed for a wide range of sanitary processing and industrial applications. Take a look around at our extensive inventory of both",
+      description: "Cowbird Depot stainless steel fittings are designed for a wide range of sanitary processing and industrial applications. Take a look around at our extensive inventory of both",
       learnMoreUrl: "/products/fittings"
     }
   ]
@@ -47,7 +47,7 @@ export default function SanitaryProducts({ products }: Props) {
         {/* Full Width Description Container */}
         <div className="mb-16">
           <p className="text-lg text-gray-600 leading-relaxed">
-            Discover Sanitube's premium stainless steel solutions, including welded tubing, valves, and 
+            Discover Cowbird Depot's premium stainless steel solutions, including welded tubing, valves, and 
             fittings. Engineered to meet ASTM standards, our products ensure durability, compliance, and 
             performance for both sanitary and industrial applications.
           </p>
