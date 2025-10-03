@@ -172,28 +172,6 @@ const medusaConfig = {
 
 
 
-{
-// Replace this UPS module block:
-  key: Modules.FULFILLMENT,
-  resolve: "@medusajs/fulfillment",
-  options: {
-    providers: [
-      {
-        resolve: "./src/modules/ups-fulfillment",
-        id: "ups-fulfillment",
-        options: {
-          clientId: process.env.UPS_CLIENT_ID,
-          clientSecret: process.env.UPS_CLIENT_SECRET,
-          accountNumber: process.env.UPS_ACCOUNT_NUMBER,
-          shipFromZip: process.env.UPS_SHIP_FROM_ZIP,
-          apiUrl: process.env.UPS_API_URL || "https://wwwcie.ups.com/api"
-        }
-      }
-    ]
-  }
-}
-
-
   ],
   plugins: [
   ...(MEILISEARCH_HOST && MEILISEARCH_ADMIN_KEY ? [{
