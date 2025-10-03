@@ -2,44 +2,11 @@
 
 import Link from "next/link"
 import { useState, useEffect, useRef } from "react"
+import { sdk } from "@lib/config"
+import { HttpTypes } from "@medusajs/types"
 
-const navigationItems = [
-  { 
-    label: "Shop", 
-    href: "/store",
-    submenu: [
-      { 
-        label: "Tubing", 
-        href: "/categories/tubing",
-        submenu: [
-          { label: "Short Tubes", href: "/categories/tubing/short-tubes" },
-          { label: "Long Tubes", href: "/categories/tubing/long-tubes" },
-          { label: "Flexible Tubes", href: "/categories/tubing/flexible-tubes" }
-        ]
-      },
-      { 
-        label: "Valves", 
-        href: "/categories/valves",
-        submenu: [
-          { label: "Ball Valves", href: "/categories/valves/ball-valves" },
-          { label: "Gate Valves", href: "/categories/valves/gate-valves" }
-        ]
-      },
-      { 
-        label: "Fittings", 
-        href: "/categories/fittings",
-        submenu: [
-          { label: "Steel Fittings", href: "/categories/fittings/steel-fittings" },
-          { label: "Brass Fittings", href: "/categories/fittings/brass-fittings" }
-        ]
-      },
-      { 
-        label: "Industrial", 
-        href: "/categories/industrial"
-        // No submenu for this one
-      }
-    ]
-  },
+// Static navigation items (non-category items)
+const staticNavigationItems = [
   { label: "Blog", href: "/blog" },
   { label: "Contact", href: "/contact" },
   { label: "About Us", href: "/about" }
@@ -50,12 +17,44 @@ interface NavigationProps {
 }
 
 export default function NavigationMenu({ className = "" }: NavigationProps) {
+  const [categories, setCategories] = useState<HttpTypes.StoreProductCategory[]>([])
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [activeSubDropdown, setActiveSubDropdown] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [debugInfo, setDebugInfo] = useState("Component mounted")
   
   // Timeout refs for delays
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const subDropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Debug: Component mounted
+  useEffect(() => {
+    console.log('🎯 NavigationMenu component mounted!')
+    setDebugInfo("Component mounted, attempting to fetch categories...")
+    
+    const timer = setTimeout(() => {
+      console.log('🚀 Starting to fetch categories with SDK...')
+      setDebugInfo("Calling SDK...")
+      
+      sdk.store.category.list({
+        fields: "id,name,handle,description,category_children.id,category_children.name,category_children.handle",
+        include_descendants_tree: true,
+        parent_category_id: null,
+      }).then(({ product_categories }) => {
+        console.log('📦 Categories fetched:', product_categories?.length || 0, 'items')
+        console.log('📋 Categories data:', product_categories)
+        setCategories(product_categories || [])
+        setLoading(false)
+        setDebugInfo(`Success! Found ${product_categories?.length || 0} categories`)
+      }).catch(error => {
+        console.error("❌ Error loading categories:", error)
+        setLoading(false)
+        setDebugInfo(`Error: ${error.message}`)
+      })
+    }, 1000) // Wait 1 second to ensure SDK is ready
+
+    return () => clearTimeout(timer)
+  }, [])
 
   // Clear timeouts on unmount
   useEffect(() => {
@@ -116,74 +115,59 @@ export default function NavigationMenu({ className = "" }: NavigationProps) {
 
   return (
     <nav className={`flex items-center space-x-8 ${className}`}>
-      {navigationItems.map((item) => (
-        <div 
-          key={item.label}
-          className="relative group"
-          onMouseEnter={() => item.submenu && handleMainMenuEnter(item.label)}
-          onMouseLeave={() => item.submenu && handleMainMenuLeave()}
+      {/* Temporary debug indicator */}
+      <div className="text-xs text-red-500 bg-yellow-100 px-2 py-1 rounded">
+        Debug: {debugInfo} | Categories: {categories.length} | Loading: {loading.toString()}
+      </div>
+      
+      {/* Shop dropdown with dynamic categories */}
+      <div 
+        className="relative group"
+        onMouseEnter={() => !loading && categories.length > 0 && handleMainMenuEnter("Shop")}
+        onMouseLeave={() => !loading && categories.length > 0 && handleMainMenuLeave()}
+      >
+        <Link
+          href="/store"
+          className="flex items-center space-x-1 text-base font-medium text-gray-700 hover:text-blue-600 transition-colors duration-200 py-2"
         >
-          <Link
-            href={item.href}
-            className="flex items-center space-x-1 text-base font-medium text-gray-700 hover:text-blue-600 transition-colors duration-200 py-2"
-          >
-            <span>{item.label}</span>
-            {item.submenu && (
-              <svg className="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-              </svg>
-            )}
-          </Link>
-          
-          {/* First Level Dropdown - Direct categories */}
-          {item.submenu && activeDropdown === item.label && (
-            <div 
-              className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-100 py-2 z-50 transition-all duration-200 ease-in-out"
-              onMouseEnter={handleDropdownContainerEnter}
-              onMouseLeave={handleMainMenuLeave}
-            >
-              {item.submenu.map((subItem) => (
-                <div
-                  key={subItem.label}
-                  className="relative"
-                  onMouseEnter={() => subItem.submenu && handleSubMenuEnter(subItem.label)}
-                  onMouseLeave={() => subItem.submenu && handleSubMenuLeave()}
-                >
-                  <Link
-                    href={subItem.href}
-                    className="flex items-center justify-between px-4 py-2 text-base text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150"
-                  >
-                    <span>{subItem.label}</span>
-                    {subItem.submenu && (
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                      </svg>
-                    )}
-                  </Link>
-                  
-                  {/* Second Level Dropdown - Sub-categories */}
-                  {subItem.submenu && activeSubDropdown === subItem.label && (
-                    <div 
-                      className="absolute top-0 left-full ml-1 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2 z-50 transition-all duration-200 ease-in-out"
-                      onMouseEnter={() => handleSubMenuEnter(subItem.label)}
-                      onMouseLeave={handleSubMenuLeave}
-                    >
-                      {subItem.submenu.map((subSubItem) => (
-                        <Link
-                          key={subSubItem.label}
-                          href={subSubItem.href}
-                          className="block px-4 py-2 text-base text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150"
-                        >
-                          {subSubItem.label}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+          <span>Shop</span>
+          {!loading && categories.length > 0 && (
+            <svg className="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
           )}
-        </div>
+        </Link>
+        
+        {/* Dynamic Categories Dropdown */}
+        {!loading && categories.length > 0 && activeDropdown === "Shop" && (
+          <div 
+            className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-100 py-2 z-50 transition-all duration-200 ease-in-out"
+            onMouseEnter={handleDropdownContainerEnter}
+            onMouseLeave={handleMainMenuLeave}
+          >
+            {categories.map((category) => (
+              <div key={category.id}>
+                <Link
+                  href={`/categories/${category.handle}`}
+                  className="flex items-center justify-between px-4 py-2 text-base text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150"
+                >
+                  <span>{category.name}</span>
+                </Link>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Static navigation items */}
+      {staticNavigationItems.map((item) => (
+        <Link
+          key={item.label}
+          href={item.href}
+          className="text-base font-medium text-gray-700 hover:text-blue-600 transition-colors duration-200 py-2"
+        >
+          {item.label}
+        </Link>
       ))}
     </nav>
   )

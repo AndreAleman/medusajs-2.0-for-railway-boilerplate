@@ -1,11 +1,17 @@
 import { getCategoriesList } from "@lib/data/categories"
-import { getCollectionsList } from "@lib/data/collections"
 import { Text } from "@medusajs/ui"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 export default async function Footer() {
-  const { collections } = await getCollectionsList(0, 6)
-  const { product_categories } = await getCategoriesList(0, 6)
+  const { product_categories } = await getCategoriesList(0, 50)
+
+  // Filter to get only parent categories
+  const parentCategories = product_categories?.filter(c => !c.parent_category && !c.parent_category_id) || []
+  
+  // Split categories into two columns for better layout
+  const midPoint = Math.ceil(parentCategories.length / 2)
+  const firstColumnCategories = parentCategories.slice(0, midPoint)
+  const secondColumnCategories = parentCategories.slice(midPoint)
 
   return (
     <footer className="bg-blue-600 text-white w-full">
@@ -30,61 +36,34 @@ export default async function Footer() {
             <div className="mt-6 space-y-2">
               <p className="text-sm text-blue-100">
                 <span className="font-medium">Email:</span>{" "}
-                  <a href="mailto:info@cowbirddepot.com" className="hover:text-white transition-colors">
-                    info@cowbirddepot.com
-                  </a>
-
+                <a href="mailto:info@cowbirddepot.com" className="hover:text-white transition-colors">
+                  info@cowbirddepot.com
+                </a>
               </p>
               <p className="text-sm text-blue-100">
                 <span className="font-medium">Phone:</span>{" "}
-                <a href="tel:+1234567890" className="hover:text-white transition-colors">
-                  (123) 456-7890
+                <a href="tel:+16309479955" className="hover:text-white transition-colors">
+                  (630) 947-9955
                 </a>
               </p>
             </div>
           </div>
 
-          {/* Product Categories */}
-          {product_categories && product_categories?.length > 0 && (
+          {/* Product Categories - First Column */}
+          {parentCategories.length > 0 && (
             <div>
               <h3 className="text-lg font-semibold text-white mb-4">
                 Product Categories
               </h3>
               <ul className="space-y-2">
-                {product_categories?.slice(0, 6).map((c) => {
-                  if (c.parent_category) {
-                    return null
-                  }
-                  return (
-                    <li key={c.id}>
-                      <LocalizedClientLink
-                        className="text-blue-100 hover:text-white transition-colors text-sm"
-                        href={`/categories/${c.handle}`}
-                        data-testid="category-link"
-                      >
-                        {c.name}
-                      </LocalizedClientLink>
-                    </li>
-                  )
-                })}
-              </ul>
-            </div>
-          )}
-
-          {/* Collections */}
-          {collections && collections.length > 0 && (
-            <div>
-              <h3 className="text-lg font-semibold text-white mb-4">
-                Collections
-              </h3>
-              <ul className="space-y-2">
-                {collections?.slice(0, 6).map((c) => (
+                {firstColumnCategories.map((c) => (
                   <li key={c.id}>
                     <LocalizedClientLink
                       className="text-blue-100 hover:text-white transition-colors text-sm"
-                      href={`/collections/${c.handle}`}
+                      href={`/categories/${c.handle}`}
+                      data-testid="category-link"
                     >
-                      {c.title}
+                      {c.name}
                     </LocalizedClientLink>
                   </li>
                 ))}
@@ -92,7 +71,29 @@ export default async function Footer() {
             </div>
           )}
 
-          {/* Quick Links & Support */}
+          {/* Product Categories - Second Column (overflow) */}
+          {secondColumnCategories.length > 0 && (
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4 lg:opacity-0">
+                Categories Continued
+              </h3>
+              <ul className="space-y-2">
+                {secondColumnCategories.map((c) => (
+                  <li key={c.id}>
+                    <LocalizedClientLink
+                      className="text-blue-100 hover:text-white transition-colors text-sm"
+                      href={`/categories/${c.handle}`}
+                      data-testid="category-link"
+                    >
+                      {c.name}
+                    </LocalizedClientLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Company Links */}
           <div>
             <h3 className="text-lg font-semibold text-white mb-4">
               Company
@@ -104,14 +105,6 @@ export default async function Footer() {
                   className="text-blue-100 hover:text-white transition-colors text-sm"
                 >
                   About Us
-                </LocalizedClientLink>
-              </li>
-              <li>
-                <LocalizedClientLink
-                  href="/blog"
-                  className="text-blue-100 hover:text-white transition-colors text-sm"
-                >
-                  Blog
                 </LocalizedClientLink>
               </li>
               <li>
@@ -128,22 +121,6 @@ export default async function Footer() {
                   className="text-blue-100 hover:text-white transition-colors text-sm"
                 >
                   Shipping & Returns
-                </LocalizedClientLink>
-              </li>
-              <li>
-                <LocalizedClientLink
-                  href="/technical-support"
-                  className="text-blue-100 hover:text-white transition-colors text-sm"
-                >
-                  Technical Support
-                </LocalizedClientLink>
-              </li>
-              <li>
-                <LocalizedClientLink
-                  href="/bulk-orders"
-                  className="text-blue-100 hover:text-white transition-colors text-sm"
-                >
-                  Bulk Orders
                 </LocalizedClientLink>
               </li>
             </ul>
@@ -189,12 +166,6 @@ export default async function Footer() {
                 className="hover:text-white transition-colors"
               >
                 Terms of Service
-              </LocalizedClientLink>
-              <LocalizedClientLink 
-                href="/cookie-policy" 
-                className="hover:text-white transition-colors"
-              >
-                Cookie Policy
               </LocalizedClientLink>
             </div>
             
