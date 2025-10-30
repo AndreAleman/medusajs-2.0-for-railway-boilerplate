@@ -203,7 +203,7 @@ const HeaderSearchSection = () => {
       )}
   {/* Under Construction Notice (put it here) */}
       <div className="bg-yellow-200 border border-yellow-400 border-t-0 text-yellow-800 px-4 py-3 text-center text-sm font-semibold">
-        The website is under construction. If you have any questions, please email:&nbsp;
+        Cowbird is open for orders! Some features are still under construction, so if you have any questions, please email:&nbsp;
         <a
           href="mailto:info@cowbirddepot.com"
           className="underline text-blue-800 hover:text-blue-900"
