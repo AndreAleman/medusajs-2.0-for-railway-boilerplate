@@ -1,11 +1,9 @@
 import { Metadata } from "next"
-import Head from "next/head" // Add this import
 
 import Footer from "@modules/layout/templates/footer"
 import Nav from "@modules/layout/templates/nav"
 import HeaderSearchSection from "@modules/layout/components/header-search-section"
 import { getBaseURL } from "@lib/util/env"
-
 
 export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
@@ -32,23 +30,9 @@ export const metadata: Metadata = {
     description: "Your premium source for stainless steel tubing, fittings, and valves",
   },
 }
-
 export default function PageLayout(props: { children: React.ReactNode }) {
   return (
     <>
-      <Head>
-        {/* Google Analytics gtag.js */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-92KP3GYT22" />
-        <script dangerouslySetInnerHTML={{
-          __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-92KP3GYT22');
-          `
-        }} />
-      </Head>
-
       {/* Main Navigation - Fixed at top */}
       <Nav />
       
@@ -65,3 +49,5 @@ export default function PageLayout(props: { children: React.ReactNode }) {
     </>
   )
 }
+
+
