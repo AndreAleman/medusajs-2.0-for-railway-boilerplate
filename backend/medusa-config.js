@@ -51,10 +51,9 @@ const medusaConfig = {
     vite: () => {
       return {
         server: {
-          allowedHosts: ["6d022dc49e0d.ngrok-free.app"], // replace ".medusa-server-testing.com" with ".yourdomain.com"
+          allowedHosts: ["6d022dc49e0d.ngrok-free.app"], // replace for prod
         },
       };
-        
     },
   },
   modules: [
@@ -163,15 +162,13 @@ const medusaConfig = {
             resolve: "@medusajs/medusa/payment-stripe",
             id: "stripe",
             options: {
-              apiKey: process.env.STRIPE_API_KEY,
+              apiKey: STRIPE_API_KEY,
+              webhookSecret: STRIPE_WEBHOOK_SECRET,
             }
-          },
+          }
         ],
       },
     }] : []),
-
-
-
   ],
 plugins: [
   ...(MEILISEARCH_HOST && MEILISEARCH_ADMIN_KEY ? [{
@@ -193,7 +190,14 @@ plugins: [
             'thumbnail',
             'metadata.parent_sku',  
             'variants',
-            'variants.metadata.competitor_skus'  // ✅ ADD THIS LINE
+            'variants.id',                           // ✅ ADD THIS
+            'variants.sku',                          // ✅ ADD THIS
+            'variants.title',                        // ✅ ADD THIS
+            'variants.options',                      // ✅ ADD THIS
+            'variants.options.value',                        // ✅ ADD THIS
+            'variants.options.option',                       // ✅ ADD THIS
+            'variants.options.option.title', 
+            'variants.metadata.competitor_skus'
           ],
           indexSettings: {
             searchableAttributes: [
@@ -213,6 +217,8 @@ plugins: [
               'metadata.parent_sku',
               'variants.sku',
               'variants.title',
+              'variants.options.value',                       // ✅ ADD THIS
+              'variants.options.option.title',    
               'variants.metadata.competitor_skus'  // ✅ ADD THIS LINE
             ],
             filterableAttributes: ['id', 'handle', 'metadata.parent_sku'],
