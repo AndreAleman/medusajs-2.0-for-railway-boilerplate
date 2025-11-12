@@ -28,3 +28,6 @@ build
 !.yarn/versions
 src/scripts/description-to-meta.ts
 
+
+/docs-private/
+notes/

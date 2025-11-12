@@ -25,7 +25,7 @@ export default async function Footer() {
               href="/"
               className="text-2xl font-bold text-white hover:text-blue-100 transition-colors"
             >
-              Cowbird Depot
+              Cardinal Cooling Systems
             </LocalizedClientLink>
             <p className="mt-4 text-blue-100 text-sm leading-relaxed">
               Premium stainless steel sanitary fittings for food processing, 
@@ -71,7 +71,7 @@ export default async function Footer() {
             </div>
           )}
 
-          {/* Product Categories - Second Column (overflow) */}
+          {/* Product Categories - Second Column */}
           {secondColumnCategories.length > 0 && (
             <div>
               <h3 className="text-lg font-semibold text-white mb-4 lg:opacity-0">
@@ -151,6 +151,31 @@ export default async function Footer() {
           </div>
         </div>
 
+{/* Payment Methods */}
+<div className="border-t border-blue-500 py-6">
+  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+    <div className="flex flex-col gap-y-2">
+      <h3 className="text-sm font-semibold text-white">
+        We Accept
+      </h3>
+      <div className="flex gap-x-3 items-center">
+        <img src="/images/payments/visa.svg" alt="Visa" className="h-8 w-auto" />
+        <img src="/images/payments/mastercard.svg" alt="Mastercard" className="h-8 w-auto" />
+        <img src="/images/payments/amex.svg" alt="American Express" className="h-8 w-auto" />
+        <img src="/images/payments/discover.svg" alt="Discover" className="h-8 w-auto" />
+      </div>
+    </div>
+    
+    <div className="flex items-center gap-x-2 text-blue-100 text-sm">
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+      </svg>
+      <span>Secure SSL Encrypted Checkout</span>
+    </div>
+  </div>
+</div>
+
+
         {/* Bottom Footer */}
         <div className="border-t border-blue-500 py-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -170,7 +195,7 @@ export default async function Footer() {
             </div>
             
             <Text className="text-sm text-blue-200">
-              © {new Date().getFullYear()} Cowbird Depot. All rights reserved.
+              © {new Date().getFullYear()} Cardinal Cooling Systems. All rights reserved.
             </Text>
           </div>
         </div>

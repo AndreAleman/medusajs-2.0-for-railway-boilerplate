@@ -226,66 +226,64 @@ class WooToMedusaMigration {
     }
   }
 
-  async batchUpdateInventory(updates: InventoryUpdate[]): Promise<void> {
-    if (updates.length === 0) {
-      console.log('   ℹ️ No inventory updates to process')
-      return
-    }
+async batchUpdateInventory(updates: InventoryUpdate[]): Promise<void> {
+  if (updates.length === 0) {
+    console.log('   ℹ️ No inventory updates to process')
+    return
+  }
 
-    console.log(`\n🔄 Processing ${updates.length} inventory updates in batches of ${this.BATCH_SIZE}...\n`)
+  console.log(`\n🔄 Updating ${updates.length} inventory levels...\n`)
 
-    for (let i = 0; i < updates.length; i += this.BATCH_SIZE) {
-      const batch = updates.slice(i, i + this.BATCH_SIZE)
-      const batchNum = Math.floor(i / this.BATCH_SIZE) + 1
-      const totalBatches = Math.ceil(updates.length / this.BATCH_SIZE)
+  let successCount = 0
+  let errorCount = 0
 
-      console.log(`   📦 Batch ${batchNum}/${totalBatches} (${batch.length} items)`)
+  for (const update of updates) {
+    try {
+      // ✅ Use Medusa's recommended endpoint
+      await this.medusaClient.post(
+        `/admin/inventory-items/${update.inventoryItemId}/location-levels/${update.locationId}`,
+        {
+          stocked_quantity: update.stockQuantity,
+          incoming_quantity: 0
+        }
+      )
+      
+      console.log(`   ✅ Updated ${update.inventoryItemId}: ${update.stockQuantity} units`)
+      successCount++
 
-      try {
-        const createPayload: any[] = []
-        const updatePayload: any[] = []
-
-        for (const update of batch) {
-          const existingLevels = await this.fetchExistingInventoryLevels(update.inventoryItemId)
-          const existingLevel = existingLevels.find(
-            (level: any) => level.location_id === update.locationId
+    } catch (err: any) {
+      // If 404, the location level doesn't exist yet - create it
+      if (err.response?.status === 404) {
+        try {
+          await this.medusaClient.post(
+            `/admin/inventory-items/${update.inventoryItemId}/location-levels`,
+            {
+              location_id: update.locationId,
+              stocked_quantity: update.stockQuantity,
+              incoming_quantity: 0
+            }
           )
-
-          if (existingLevel) {
-            updatePayload.push({
-              id: existingLevel.id,
-              inventory_item_id: update.inventoryItemId,
-              location_id: update.locationId,
-              stocked_quantity: update.stockQuantity
-            })
-          } else {
-            createPayload.push({
-              inventory_item_id: update.inventoryItemId,
-              location_id: update.locationId,
-              stocked_quantity: update.stockQuantity
-            })
-          }
+          console.log(`   ✅ Created ${update.inventoryItemId}: ${update.stockQuantity} units`)
+          successCount++
+        } catch (createErr: any) {
+          console.error(`   ❌ Failed to create inventory for ${update.inventoryItemId}:`, createErr.response?.data || createErr.message)
+          errorCount++
         }
-
-        const payload: any = {}
-        if (createPayload.length > 0) payload.create = createPayload
-        if (updatePayload.length > 0) payload.update = updatePayload
-
-        if (Object.keys(payload).length > 0) {
-          await this.medusaClient.post('/admin/inventory-items/location-levels/batch', payload)
-          console.log(`      ✅ Created: ${createPayload.length}, Updated: ${updatePayload.length}`)
-        }
-
-        if (i + this.BATCH_SIZE < updates.length) {
-          await new Promise(resolve => setTimeout(resolve, 500))
-        }
-      } catch (error: any) {
-        console.error(`      ❌ Batch failed: ${error.response?.data?.message || error.message}`)
+      } else {
+        console.error(`   ❌ Failed to update ${update.inventoryItemId}:`, err.response?.data || err.message)
+        errorCount++
       }
     }
 
-    console.log(`\n✅ Inventory batch update complete!\n`)
+    // Small delay to avoid rate limiting
+    await new Promise(resolve => setTimeout(resolve, 100))
   }
+
+  console.log(`\n✅ Inventory update complete!`)
+  console.log(`   ✅ Success: ${successCount}`)
+  console.log(`   ❌ Errors: ${errorCount}\n`)
+}
+
 
   async updateProductPricesAndInventory(
     productId: string, 
@@ -315,7 +313,7 @@ class WooToMedusaMigration {
           }
 
           const wooPrice = Number(wooVariant.price)
-          const newPrice = wooPrice * 2
+          const newPrice = wooPrice * 2.2
 
           let weight = typeof wooVariant.weight !== 'undefined' && !isNaN(Number(wooVariant.weight))
             ? Math.ceil(Number(wooVariant.weight))
