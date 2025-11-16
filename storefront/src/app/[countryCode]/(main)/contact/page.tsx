@@ -1,17 +1,56 @@
+"use client"
+
 import { Metadata } from "next"
 import Link from "next/link"
+import { useState, FormEvent, useRef } from "react"
 
 interface Props {
   params: { countryCode: string }
 }
 
-export const metadata: Metadata = {
-  title: "Contact Us - Get Expert Guidance",
-  description: "Contact Cowbird Depot for expert guidance on sanitary stainless steel fittings. Our technical team is ready to help with your specific application needs.",
-}
-
 export default function ContactPage({ params }: Props) {
   const { countryCode } = params
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const formRef = useRef<HTMLFormElement>(null)
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    setSubmitStatus('idle')
+
+    const formData = new FormData(e.currentTarget)
+    const data = {
+      name: formData.get('name') as string,
+      lastName: formData.get('lastName') as string,
+      email: formData.get('email') as string,
+      phone: formData.get('phone') as string,
+      message: formData.get('message') as string
+    }
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/contact`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-publishable-api-key': process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!
+        },
+        body: JSON.stringify(data)
+      })
+
+      if (response.ok) {
+        setSubmitStatus('success')
+        formRef.current?.reset()
+      } else {
+        setSubmitStatus('error')
+      }
+    } catch (error) {
+      console.error('Contact form error:', error)
+      setSubmitStatus('error')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <div className="bg-white">
@@ -51,7 +90,19 @@ export default function ContactPage({ params }: Props) {
                 Send Us a Message
               </h2>
 
-              <form className="space-y-6">
+              {submitStatus === 'success' && (
+                <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded text-green-800">
+                  Thank you! Your message has been sent successfully.
+                </div>
+              )}
+
+              {submitStatus === 'error' && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded text-red-800">
+                  Sorry, there was an error sending your message. Please try again.
+                </div>
+              )}
+
+              <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
                 {/* Name Fields */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -97,13 +148,12 @@ export default function ContactPage({ params }: Props) {
                 {/* Phone */}
                 <div>
                   <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                    Phone Number*
+                    Phone Number
                   </label>
                   <input
                     type="tel"
                     id="phone"
                     name="phone"
-                    required
                     className="block w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded"
                   />
                 </div>
@@ -123,38 +173,28 @@ export default function ContactPage({ params }: Props) {
                   />
                 </div>
 
-                {/* Terms Checkbox */}
-                <div className="flex items-center">
-                  <input
-                    id="agreeToTerms"
-                    name="agreeToTerms"
-                    type="checkbox"
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0"
-                  />
-                  <label htmlFor="agreeToTerms" className="ml-3 block text-sm text-gray-700">
-                    I agree to the Terms & Conditions
-                  </label>
-                </div>
-
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  className="w-full inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors duration-200 rounded"
+                  disabled={isSubmitting}
+                  className="w-full inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 rounded"
                 >
-                  Send Message
-                  <svg 
-                    className="ml-2 w-4 h-4" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M17 8l4 4m0 0l-4 4m4-4H3" 
-                    />
-                  </svg>
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
+                  {!isSubmitting && (
+                    <svg 
+                      className="ml-2 w-4 h-4" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth={2} 
+                        d="M17 8l4 4m0 0l-4 4m4-4H3" 
+                      />
+                    </svg>
+                  )}
                 </button>
               </form>
             </div>
@@ -207,16 +247,13 @@ export default function ContactPage({ params }: Props) {
                         href="mailto:aleman@cowbirddepot.com" 
                         className="text-blue-600 font-semibold hover:text-blue-700 transition-colors text-lg"
                       >
-                        info@cowbirddepot.com
+                        aleman@cowbirddepot.com
                       </a>
                       <p className="text-sm text-gray-500 mt-1">
                         We respond within 24 hours
                       </p>
                     </div>
                   </div>
-
-                  {/* Address */}
-                  
                 </div>
               </div>
             </div>
