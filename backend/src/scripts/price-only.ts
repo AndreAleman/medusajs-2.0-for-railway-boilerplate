@@ -313,7 +313,7 @@ async batchUpdateInventory(updates: InventoryUpdate[]): Promise<void> {
           }
 
           const wooPrice = Number(wooVariant.price)
-          const newPrice = wooPrice * 2.2
+          const newPrice = wooPrice * 2.1
 
           let weight = typeof wooVariant.weight !== 'undefined' && !isNaN(Number(wooVariant.weight))
             ? Math.ceil(Number(wooVariant.weight))
