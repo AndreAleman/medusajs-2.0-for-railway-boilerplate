@@ -12,7 +12,7 @@ export async function POST(
   const notificationModuleService = req.scope.resolve(Modules.NOTIFICATION)
 
   await notificationModuleService.createNotifications({
-    to: process.env.CONTACT_FORM_EMAIL || "aleman@cardinalcoolingsystems.com",
+    to: process.env.CONTACT_FORM_EMAIL || "aleman@cowbirddepot.com",
     channel: "email",
     template: "contact-form",
     data: {

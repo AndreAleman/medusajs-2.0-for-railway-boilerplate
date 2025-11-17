@@ -32,7 +32,7 @@ function cleanOptionName(name: string): string {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://cardinalcoolingsystems.com'
+  const baseUrl = 'https://cowbirddepot.com'
   
   const regions = await listRegions()
   const countryCodes = regions

@@ -93,7 +93,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     
     // ← ADDED: Canonical tag to parent (no query params)
     alternates: {
-      canonical: `https://cardinalcoolingsystems.com/${params.countryCode}/products/${handle}`
+      canonical: `https://cowbirddepot.com/${params.countryCode}/products/${handle}`
     },
     
     openGraph: {
@@ -134,7 +134,7 @@ export default async function ProductPage({ params, searchParams }: Props) {
       {/* ← ADDED: Canonical link tag */}
       <link 
         rel="canonical" 
-        href={`https://cardinalcoolingsystems.com/${params.countryCode}/products/${params.handle}`} 
+        href={`https://cowbirddepot.com/${params.countryCode}/products/${params.handle}`} 
       />
       
       <ProductTemplate
